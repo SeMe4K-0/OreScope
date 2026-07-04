@@ -80,7 +80,7 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="margin-left:6px;opacity:.6;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
             <sc-if value="{{ batchOpen }}" hint-placeholder-val="{{ false }}">
-              <div style="position:absolute;top:calc(100% + 8px);left:0;width:300px;background:{{c.surface}};border:1px solid {{c.border}};border-radius:12px;box-shadow:0 18px 44px rgba(13,38,66,.22);z-index:30;overflow:hidden;">
+              <div style="position:absolute;top:calc(100% + 8px);left:0;width:420px;max-width:calc(100vw - 48px);background:{{c.surface}};border:1px solid {{c.border}};border-radius:12px;box-shadow:0 18px 44px rgba(13,38,66,.22);z-index:30;overflow:hidden;">
                 <div style="padding:11px;border-bottom:1px solid {{c.border}};display:flex;align-items:center;gap:9px;">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="{{c.textDim}}" stroke-width="1.8"/><path d="M21 21l-4-4" stroke="{{c.textDim}}" stroke-width="1.8" stroke-linecap="round"/></svg>
                   <input value="{{ batchQuery }}" onInput="{{ onBatchSearch }}" placeholder="Поиск партии…" style="flex:1;border:none;outline:none;background:transparent;color:{{c.text}};font-family:inherit;font-size:13px;"/>
@@ -89,9 +89,11 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
                   <sc-for list="{{ batchFiltered }}" as="o" hint-placeholder-count="4">
                     <div style="display:flex;align-items:center;border-radius:8px;background:{{ o.bg }};" style-hover="background:{{c.surface2}}">
                       <div onClick="{{ o.onPick }}" style="flex:1;display:flex;align-items:center;gap:10px;padding:9px 11px;cursor:pointer;min-width:0;">
-                        <span style="font-size:13.5px;font-weight:600;color:{{ o.idColor }};">{{ o.label }}</span>
-                        <span style="font-size:11.5px;color:{{c.textDim}};">{{ o.sub }}</span>
-                        <span style="margin-left:auto;font-size:11.5px;color:{{c.textDim}};font-family:'IBM Plex Mono',monospace;">{{ o.meta }}</span>
+                        <span style="flex:1;min-width:0;overflow:hidden;">
+                          <span style="display:block;font-size:13.5px;font-weight:600;color:{{ o.idColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ o.label }}</span>
+                          <span style="display:block;font-size:11px;color:{{c.textDim}};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ o.sub }}</span>
+                        </span>
+                        <span style="flex:none;font-size:11.5px;color:{{c.textDim}};font-family:'IBM Plex Mono',monospace;white-space:nowrap;">{{ o.meta }}</span>
                       </div>
                       <span onClick="{{ o.onDelete }}" title="Удалить партию" style="padding:0 11px;cursor:pointer;color:{{c.textDim}};font-size:16px;line-height:1;" style-hover="color:{{c.bad}}">×</span>
                     </div>
@@ -242,7 +244,7 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="margin-left:6px;opacity:.6;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
             <sc-if value="{{ batchOpen }}" hint-placeholder-val="{{ false }}">
-              <div style="position:absolute;top:calc(100% + 8px);left:0;width:300px;background:{{c.surface}};border:1px solid {{c.border}};border-radius:12px;box-shadow:0 18px 44px rgba(13,38,66,.22);z-index:30;overflow:hidden;">
+              <div style="position:absolute;top:calc(100% + 8px);left:0;width:420px;max-width:calc(100vw - 48px);background:{{c.surface}};border:1px solid {{c.border}};border-radius:12px;box-shadow:0 18px 44px rgba(13,38,66,.22);z-index:30;overflow:hidden;">
                 <div style="padding:11px;border-bottom:1px solid {{c.border}};display:flex;align-items:center;gap:9px;">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="{{c.textDim}}" stroke-width="1.8"/><path d="M21 21l-4-4" stroke="{{c.textDim}}" stroke-width="1.8" stroke-linecap="round"/></svg>
                   <input value="{{ batchQuery }}" onInput="{{ onBatchSearch }}" placeholder="Поиск партии…" style="flex:1;border:none;outline:none;background:transparent;color:{{c.text}};font-family:inherit;font-size:13px;"/>
@@ -251,9 +253,11 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
                   <sc-for list="{{ batchFiltered }}" as="o" hint-placeholder-count="4">
                     <div style="display:flex;align-items:center;border-radius:8px;background:{{ o.bg }};" style-hover="background:{{c.surface2}}">
                       <div onClick="{{ o.onPick }}" style="flex:1;display:flex;align-items:center;gap:10px;padding:9px 11px;cursor:pointer;min-width:0;">
-                        <span style="font-size:13.5px;font-weight:600;color:{{ o.idColor }};">{{ o.label }}</span>
-                        <span style="font-size:11.5px;color:{{c.textDim}};">{{ o.sub }}</span>
-                        <span style="margin-left:auto;font-size:11.5px;color:{{c.textDim}};font-family:'IBM Plex Mono',monospace;">{{ o.meta }}</span>
+                        <span style="flex:1;min-width:0;overflow:hidden;">
+                          <span style="display:block;font-size:13.5px;font-weight:600;color:{{ o.idColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ o.label }}</span>
+                          <span style="display:block;font-size:11px;color:{{c.textDim}};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ o.sub }}</span>
+                        </span>
+                        <span style="flex:none;font-size:11.5px;color:{{c.textDim}};font-family:'IBM Plex Mono',monospace;white-space:nowrap;">{{ o.meta }}</span>
                       </div>
                       <span onClick="{{ o.onDelete }}" title="Удалить партию" style="padding:0 11px;cursor:pointer;color:{{c.textDim}};font-size:16px;line-height:1;" style-hover="color:{{c.bad}}">×</span>
                     </div>
@@ -590,10 +594,6 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
                     <input value="{{ upSampleNew }}" onInput="{{ onUpSampleNew }}" placeholder="ID образца, напр. NN-4173" style="width:100%;margin-top:8px;padding:9px 11px;border-radius:9px;border:1px solid {{c.borderHi}};background:{{c.surface}};color:{{c.text}};font-family:'IBM Plex Mono',monospace;font-size:13px;outline:none;"/>
                   </sc-if>
                 </div>
-              </div>
-              <div style="margin-top:12px;">
-                <div style="font-size:10.5px;color:{{c.textDim}};font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Масштаб, мкм/пиксель <span style="text-transform:none;font-weight:400;">(опционально — для площадей в мм²)</span></div>
-                <input type="number" step="0.01" min="0" value="{{ upScaleVal }}" onInput="{{ onUpScale }}" placeholder="напр. 0.5" style="width:100%;padding:9px 11px;border-radius:9px;border:1px solid {{c.border}};background:{{c.surface2}};color:{{c.text}};font-family:'IBM Plex Mono',monospace;font-size:13px;outline:none;"/>
               </div>
               <sc-if value="{{ uploadEmpty }}" hint-placeholder-val="{{ false }}">
                 <div style="margin-top:14px;padding:14px;text-align:center;font-size:12px;color:{{c.textFaint}};border:1px dashed {{c.border}};border-radius:10px;">Файлы не выбраны</div>
@@ -1099,7 +1099,7 @@ class Component extends DCLogic {
     if(!sid||sid==='__new'||this.state.upBatch==='__new')sid=(this.state.upSampleNew.trim()||('SH-'+String(Date.now()).slice(-4)));
     try{
       await fetch('/api/batches',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:bid,label:bid})});
-      await fetch('/api/samples',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:sid,batch_id:bid,um_per_px:this._upScale||null})});
+      await fetch('/api/samples',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:sid,batch_id:bid})});
       for(const f of files){const fd=new FormData();fd.append('modality','om');fd.append('file',f);await fetch('/api/samples/'+sid+'/files',{method:'POST',body:fd});}
       this._uploadFiles=[];
       if(!this.batchList.find(b=>b.id===bid))this.batchList.unshift({id:bid,label:bid,sub:'OM-шлифы'});
@@ -1345,8 +1345,7 @@ class Component extends DCLogic {
     const uploadFiles=(this._uploadFiles||[]).map(f=>({name:f.name,mod:'OM',size:(f.size/1048576).toFixed(1)+' МБ',color:this.modColor.OM}));
     const uploadEmpty=uploadFiles.length===0;
     const modKinds=[
-      {mod:'OM',color:this.modColor.OM,desc:'Оптическая микроскопия — панорамы полированных шлифов'},
-      {mod:'SEM',color:this.modColor.SEM,desc:'Растровая электронная — субмикронная морфология'}
+      {mod:'OM',color:this.modColor.OM,desc:'Оптическая микроскопия — панорамы полированных шлифов'}
     ];
 
     // ---- ore analysis data ----
@@ -1404,7 +1403,7 @@ class Component extends DCLogic {
     const clsLines=(ore&&ore.report&&ore.report.classification)||[];
     const reportBlocks=[
       {title:'Анализ изображения шлифа',hasTable:false,note:'',lines:imgLines.map(t=>({l:'',v:t}))},
-      {title:'Классификация руды',hasTable:false,note:'Логика ТЗ: тальк >10% → оталькованная; иначе преобладание обычных срастаний → рядовая, тонких → труднообогатимая.',lines:clsLines.map(t=>({l:'',v:t}))}
+      {title:'Классификация руды',hasTable:false,note:'Логика ТЗ: зона оталькования (реконструкция из фазы, см. пояснение выше) >10% → оталькованная; иначе преобладание обычных срастаний → рядовая, тонких → труднообогатимая.',lines:clsLines.map(t=>({l:'',v:t}))}
     ];
 
     const quickStats=[
@@ -1453,7 +1452,6 @@ class Component extends DCLogic {
       onExportCsv:()=>window.open('/api/samples/'+st.sample+'/export.csv','_blank'),
       onExportPdf:()=>window.open('/api/samples/'+st.sample+'/report.pdf','_blank'),
       onExportBatchCsv:()=>window.open('/api/batches/'+st.batch+'/export.csv','_blank'),
-      onUpScale:e=>{this._upScale=parseFloat(e.target.value)||null;},upScaleVal:this._upScale||'',
       onToggleTheme:()=>this.setState(s=>({theme:s.theme==='dark'?'light':'dark'})),
       themeIcon:isDark?'M12 3v2M12 19v2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M3 12h2M19 12h2M5.6 18.4 7 17M17 7l1.4-1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8':'M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z',
       themeLabel:isDark?'Светлая':'Тёмная',

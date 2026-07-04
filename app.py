@@ -194,6 +194,12 @@ def _run_analysis_sync(sample: dict) -> dict:
         f"Доля тонких среди сульфидов: {v.fine_share:.0f}%",
         f"Тальк: фаза {v.talc_percent:.2f}% · зоны оталькования {v.talc_zone_percent:.2f}% "
         f"(порог правила 10% — по зонам)",
+        "Зона оталькования — не сама фаза талька, а участок породы вокруг её скоплений: "
+        "тальк в шлифе рассеян мелкими вкраплениями, и площадь одной только фазы обычно "
+        "меньше 10% даже у явно оталькованной руды. Зона восстанавливается из фазы по "
+        "локальной плотности вкраплений (включает матрицу и сульфиды между ними) и "
+        "калибрована под контуры, которыми геолог обводил зоны при разметке — именно к "
+        "ней применяется порог 10% из ТЗ.",
     ]
     cls_lines = [
         f"Класс руды: {ore_class_final} — уверенность модели талька {confidence:.0f}%",
@@ -293,11 +299,29 @@ async def delete_batch(batch_id: str):
     return {"deleted": batch_id}
 
 
+def _summary_row(s: dict) -> dict:
+    """Облегчённая версия образца для списков партии: без defect_polys/palette/report —
+    те тяжёлые поля нужны только на экране конкретного образца (GET /api/samples/{id}).
+    Полный объект на партию из 500+ образцов раздувал ответ и вешал список на минуты."""
+    r = s.get("results") or {}
+    return {
+        "id": s["id"], "batch_id": s["batch_id"], "status": s["status"],
+        "modalities": s.get("modalities", []), "created": s.get("created"),
+        "expert_verdict": s.get("expert_verdict"), "expert_ore_class": s.get("expert_ore_class"),
+        "results": ({
+            "ore_class": r.get("ore_class"), "talc_pct": r.get("talc_pct"),
+            "talc_zone_pct": r.get("talc_zone_pct"), "sulfide_pct": r.get("sulfide_pct"),
+            "fine_count": r.get("fine_count"), "confidence": r.get("confidence"),
+            "review_needed": r.get("review_needed"), "review_reason": r.get("review_reason"),
+        } if r else None),
+    }
+
+
 @app.get("/api/batches/{batch_id}/samples")
 async def list_samples(batch_id: str):
     if batch_id not in BATCHES:
         raise HTTPException(404)
-    return [s for s in SAMPLES.values() if s["batch_id"] == batch_id]
+    return [_summary_row(s) for s in SAMPLES.values() if s["batch_id"] == batch_id]
 
 
 @app.get("/api/samples/{sample_id}")
