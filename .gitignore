@@ -4,5 +4,7 @@ ore_data/
 outputs/
 data/grain_crops/
 models/*.pt
+!models/talc_best.pt
+!models/grain_cnn.pt
 *.tmp
 .DS_Store

@@ -1,0 +1,2 @@
+models/talc_best.pt filter=lfs diff=lfs merge=lfs -text
+models/grain_cnn.pt filter=lfs diff=lfs merge=lfs -text

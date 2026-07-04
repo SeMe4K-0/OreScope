@@ -44,7 +44,11 @@ CLI и скрипты оценки.
 
 ## Быстрый старт (локально)
 
+Веса рабочих моделей (`models/talc_best.pt`, `models/grain_cnn.pt`) хранятся через
+**Git LFS** прямо в репозитории — воспроизведение не требует переобучения.
+
 ```bash
+git lfs install && git lfs pull          # подтянуть веса (если клонировали без LFS)
 pip install -r requirements.txt          # Python 3.11, GPU опционален
 python app.py                            # дашборд на http://localhost:7860 (ORESCOPE_PORT)
 ```
@@ -133,9 +137,11 @@ python scripts/evaluate.py
 - Плашка шкалы «300 мкм» на ч2 пока не маскируется (TODO — этап 0.3 плана).
 - Изображения свыше ~1 Гп потребуют потокового чтения (pyvips).
 - GeoJSON в пиксельных координатах (ось Y вниз); Shapefile — через `ogr2ogr`/QGIS.
-- Веса моделей (`models/*.pt`) не хранятся в git — ссылка на облачный диск в сдаче.
-  Версии: `talc_v1_zonefill.pt` (архив), `talc_v2_ch1refined.pt`, `talc_v2b_noch2neg.pt`,
-  `talc_v3_final.pt` = `talc_best.pt` (рабочая).
+- В git через LFS лежат только рабочие веса (`talc_best.pt`, `grain_cnn.pt`) — уложились
+  в бесплатный лимит LFS (1 ГБ). Промежуточные чекпоинты итерации (`talc_v1_zonefill.pt`,
+  `talc_v2_ch1refined.pt`, `talc_v2b_noch2neg.pt`, `talc_best_v1.pt`, `talc_last.pt`,
+  `talc_v3_final.pt` — идентичен `talc_best.pt`) в репозиторий не включены; они
+  воспроизводимы по шагам из раздела «Обучение и калибровка» выше.
 
 ## Структура данных
 
