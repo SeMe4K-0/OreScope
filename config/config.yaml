@@ -1,0 +1,140 @@
+# OreScope — конфигурация пайплайна классификации руд по OM-шлифам
+
+model:                     # U-Net сегментации талька (бинарная: фон / тальк)
+  architecture: unet
+  encoder: resnet34
+  encoder_weights: imagenet
+  num_classes: 2
+  in_channels: 3
+
+training:
+  epochs: 40
+  batch_size: 8
+  learning_rate: 3.0e-4
+  weight_decay: 1.0e-5
+  scheduler:
+    name: cosine_annealing
+    T_max: 40
+    eta_min: 1.0e-7
+  loss:                    # гибрид Dice + BCE (по SulfideNet, IEEE JSTARS 2025)
+    dice_weight: 0.5
+    ce_weight: 0.5
+  early_stopping_patience: 10
+  save_dir: models/
+  best_metric: dice
+
+data:
+  image_size: 512          # размер тайла для обучения талька
+  num_workers: 0
+  pin_memory: false
+  train_split: 0.8         # сплит ПО ИЗОБРАЖЕНИЯМ, не по тайлам
+  valid_split: 0.2
+
+augmentation:
+  train:
+    rotate90: true
+    horizontal_flip: true
+    vertical_flip: true
+    brightness_contrast:   # умеренно: цвет фаз диагностичен
+      brightness_limit: 0.25
+      contrast_limit: 0.25
+    gauss_noise:
+      var_limit: [10.0, 50.0]
+    motion_blur:
+      blur_limit: 5
+    coarse_dropout:
+      max_holes: 6
+      max_height: 48
+      max_width: 48
+    random_scale:
+      scale_limit: 0.25
+    # доменная симуляция «панорамного» профиля (тёмные нейтральные снимки)
+    domain_shift:
+      enabled: true
+      darken_range: [0.35, 0.85]   # множитель яркости
+      desaturate_range: [0.3, 0.9] # доля обесцвечивания
+      p: 0.35
+    scratches:                     # симуляция царапин/пыли
+      enabled: true
+      p: 0.25
+  normalize:
+    mean: [0.485, 0.456, 0.406]
+    std: [0.229, 0.224, 0.225]
+
+classes:
+  BACKGROUND: 0
+  ORDINARY: 1              # обычные срастания -> зелёный
+  FINE: 2                  # тонкие срастания  -> красный
+  TALC: 3                  # тальк             -> синий
+  names: ["Фон", "Обычные срастания", "Тонкие срастания", "Тальк"]
+  colors:
+    - [0, 0, 0]
+    - [0, 200, 0]
+    - [255, 0, 0]
+    - [40, 90, 255]
+
+preprocessing:
+  color_norm:              # нормализация цветового профиля к домену ч1 (Reinhard, LAB)
+    enabled: true          # снимает доменный сдвиг ч2/панорам (тёмный нейтральный тракт)
+    ref_mean: [87.7, 121.2, 155.7]   # scripts/compute_ref_profile.py по 42 оригиналам ч1
+    ref_std: [48.0, 5.4, 9.8]
+    tol_mean: 6.0          # если профиль уже близок к референсу — идентичность
+    tol_std: 8.0
+    stripe: 2048           # обработка полосами (панорамы сотни Мп)
+  valid_mask:              # маска валидных пикселей образца
+    var_kernel: 31         # окно локальной дисперсии
+    var_thresh: 4.0        # ниже -> подозрение на пустоту/выколку (в связке с яркостью)
+    dark_thresh: 8         # почти абсолютно чёрное (JPEG-паддинг, выколки)
+    min_hole_area: 4096    # мелкие «дыры» не выбрасываем
+  median_ksize: 3          # подавление царапин перед бинаризацией
+  illumination_sigma: 151  # гаусс для выравнивания фона освещения
+  clahe_clip: 2.0
+  clahe_grid: 8
+
+sulfides:
+  otsu_min: 110            # защитные границы порога Otsu (после нормализации яркости)
+  otsu_max: 220
+  min_grain_px: 30         # зерно меньше -> шум (в px исходника 2272x1704; масштабируется)
+  abs_delta: 60.0          # абсолютная ветка (массивные сульфиды, гасимые выравниванием
+  abs_min: 120.0           # освещения): порог = max(p25(gray_raw)+abs_delta, abs_min)
+
+grains:                    # классификация срастаний (обычные/тонкие), признаки инвариантны к масштабу
+  replacement_thresh: 0.30 # доля замещения внутри оболочки зерна; калибруется calibrate_grains.py
+  density_thresh: 0.55     # локальная плотность сульфидов ниже порога -> тонкое; калибруется
+
+rule:                      # экспертное правило классификации
+  talc_prob_thresh: 0.55   # порог бинаризации вероятности талька (свип 03.07)
+  talc_percent: 10.0       # порог ТЗ, применяется к ЗОНАМ оталькования
+  zone_window_frac: 0.06   # зоны = компоненты boxFilter(фаза, frac*max(h,w)) > zone_density
+  zone_density: 0.03       # с заполнением фазой >= zone_fill_min (отсекает «жидкие» гало
+  zone_fill_min: 0.12      # ложных срабатываний); калибровка по 39 парам ч1 (04.07)
+  min_talc_phase_percent: 5.0  # «оталькованная» требует и фазу > 5% (свип scripts/sweep_rule.py)
+  min_sulfide_percent: 0.1
+  near_tie_percent: 0.5    # |fine - ordinary| меньше -> предупреждение
+  talc_border_percent: 1.0 # |talc - 10| меньше -> предупреждение
+
+tiling:
+  tile: 1024
+  overlap: 128
+  batch_size: 4
+  tta_max_mp: 150          # TTA отключается для изображений крупнее (мегапикселей)
+  downscale_max_side: 0    # 0 = без даунскейла; иначе max сторона (напр. 10000)
+
+postprocessing:
+  min_object_size: 64
+  opening_kernel_size: 3
+  closing_kernel_size: 5
+  fill_holes: true
+
+export:
+  output_dir: outputs/
+  csv_delimiter: ","
+  json_indent: 2
+  geojson_min_area_px: 400   # фильтр микро-полигонов
+  geojson_epsilon_frac: 0.01 # Douglas-Peucker: eps = frac * arcLength
+  overlay_max_side: 4096     # даунскейл оверлея для браузера
+
+logging:
+  level: INFO
+  format: "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+  file: outputs/run.log

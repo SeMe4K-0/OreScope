@@ -1,0 +1,16 @@
+# данные и артефакты не попадают в образ (гигабайты); модели монтируются томом
+ore_data/
+outputs/
+data/grain_crops/
+data/talc_masks/
+data/talc_ignore/
+data/talc_masks_ch2/
+docs/
+__pycache__/
+**/__pycache__/
+*.pyc
+.git/
+.gitignore
+*.tmp
+.DS_Store
+frontend/AlloyScope.dc.html

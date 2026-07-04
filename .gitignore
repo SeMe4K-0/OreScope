@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+ore_data/
+outputs/
+data/grain_crops/
+models/*.pt
+*.tmp
+.DS_Store

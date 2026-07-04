@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OreScope — классификация руд</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F5F9; --surface:#fff; --surface2:#F7FAFD; --border:#E3E9F2; --border-hi:#B9C9DD;
+  --text:#1A2B3F; --dim:#6C7A8C; --faint:#A8B4C4; --primary:#2E8FE0; --primary-dim:#E3F0FC;
+  --sidebar:#14263C; --ok:#2FA84F; --warn:#E8943A; --err:#E4372E;
+  --shadow:0 2px 10px rgba(13,38,66,.06);
+  --green:#18B24B; --red:#E4372E; --blue:#3D6BFF;
+}
+*{box-sizing:border-box} html,body{height:100%}
+body{margin:0;font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:rgba(120,150,180,.35);border-radius:6px}
+.mono{font-family:'IBM Plex Mono',monospace}
+.app{display:flex;height:100vh;overflow:hidden}
+aside{width:236px;flex:none;background:var(--sidebar);color:#fff;display:flex;flex-direction:column;padding:18px 14px;gap:6px}
+.brand{display:flex;align-items:center;gap:11px;padding:6px 8px 18px}
+.brand .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#2E8FE0,#0091D6);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,145,214,.4)}
+.brand b{font-size:16px;letter-spacing:-.3px}
+.brand small{display:block;color:rgba(255,255,255,.5);font-size:10.5px;letter-spacing:.5px;text-transform:uppercase}
+.navlab{color:rgba(255,255,255,.4);font-size:10.5px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;padding:6px 10px 4px}
+.nav{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;color:rgba(255,255,255,.75);cursor:pointer;font-weight:600;transition:.12s}
+.nav:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav.active{background:rgba(255,255,255,.12);color:#fff}
+.nav .cnt{margin-left:auto;font-size:11px;font-weight:700;background:rgba(255,255,255,.14);border-radius:8px;padding:2px 8px;font-family:'IBM Plex Mono',monospace}
+.nav .cnt.hot{background:var(--warn);color:#fff}
+.legend{margin-top:auto;background:rgba(255,255,255,.06);border-radius:11px;padding:12px;font-size:12px;color:rgba(255,255,255,.75);display:flex;flex-direction:column;gap:7px}
+.legend span{display:flex;align-items:center;gap:8px}
+.dot{width:11px;height:11px;border-radius:3px;flex:none}
+main{flex:1;display:flex;flex-direction:column;min-width:0}
+header{display:flex;align-items:center;gap:16px;padding:15px 24px;border-bottom:1px solid var(--border);background:var(--surface);flex:none}
+header h1{font-size:18px;margin:0;letter-spacing:-.3px}
+header .sub{font-size:12.5px;color:var(--dim);margin-top:1px}
+.content{flex:1;display:flex;min-height:0}
+.col-list{width:330px;flex:none;border-right:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;min-height:0}
+.upload{margin:14px;border:1.5px dashed var(--border-hi);border-radius:12px;padding:16px;text-align:center;color:var(--dim);cursor:pointer;transition:.15s}
+.upload:hover,.upload.drag{border-color:var(--primary);background:var(--primary-dim);color:var(--primary)}
+.upload b{color:var(--text)} .upload.drag b{color:var(--primary)}
+.umrow{display:flex;align-items:center;gap:8px;margin:0 14px 10px;font-size:12px;color:var(--dim)}
+.umrow input{width:90px;padding:6px 8px;border:1px solid var(--border);border-radius:7px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--text);outline:none}
+.samples{flex:1;overflow-y:auto;padding:0 10px 14px;display:flex;flex-direction:column;gap:8px}
+.card{border:1px solid var(--border);border-radius:11px;padding:11px 12px;cursor:pointer;background:var(--surface);box-shadow:var(--shadow);transition:.12s}
+.card:hover{border-color:var(--border-hi)} .card.sel{border-color:var(--primary);background:var(--primary-dim)}
+.card .row1{display:flex;align-items:center;gap:8px}
+.card .name{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip{margin-left:auto;flex:none;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:9px;letter-spacing:.3px}
+.chip.q{background:#EDF1F7;color:var(--dim)} .chip.p{background:#FFF3E2;color:var(--warn)}
+.chip.ok{background:#E3F6E9;color:var(--ok)} .chip.rev{background:#FFF3E2;color:var(--warn)}
+.chip.err{background:#FDE8E7;color:var(--err)} .chip.conf{background:#E3F0FC;color:var(--primary)}
+.card .row2{display:flex;gap:10px;margin-top:5px;font-size:11.5px;color:var(--dim)}
+.col-view{flex:1;min-width:0;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px}
+.viewer{position:relative;background:#0E1B2C;border-radius:14px;overflow:hidden;height:52vh;min-height:320px}
+.viewer .stage{position:absolute;inset:0;overflow:hidden;cursor:grab}
+.viewer img{position:absolute;top:0;left:0;transform-origin:0 0;user-select:none;-webkit-user-drag:none;image-rendering:auto}
+.vbar{position:absolute;top:12px;left:12px;display:flex;gap:6px;z-index:5}
+.vbar button{padding:7px 13px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(10,24,40,.72);color:#fff;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;backdrop-filter:blur(4px)}
+.vbar button.on{background:var(--primary);border-color:var(--primary)}
+.zoombar{position:absolute;bottom:12px;right:12px;display:flex;gap:6px;z-index:5}
+.zoombar button{width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(10,24,40,.72);color:#fff;font-size:16px;cursor:pointer}
+.placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.45);font-size:13px;flex-direction:column;gap:10px}
+.verdict{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow)}
+.verdict .cls{font-size:22px;font-weight:700;letter-spacing:-.4px}
+.verdict .cls.otalk{color:var(--blue)} .verdict .cls.ryad{color:var(--ok)} .verdict .cls.trudno{color:var(--red)} .verdict .cls.none{color:var(--dim)}
+.verdict p{margin:9px 0 0;color:var(--text);line-height:1.5;font-size:13.5px}
+.warn{margin-top:10px;padding:10px 13px;border-radius:9px;background:#FFF7EA;border:1px solid #F3DFBE;color:#8A5A18;font-size:12.5px;line-height:1.45}
+.grid2{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+.panel h3{margin:0 0 12px;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td,th{padding:8px 10px;border-bottom:1px solid var(--border);text-align:left}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--dim)}
+td.num{font-family:'IBM Plex Mono',monospace;text-align:right}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border-radius:9px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;text-decoration:none}
+.btn:hover{border-color:var(--border-hi)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.bad{background:#fff;border-color:var(--err);color:var(--err)}
+.kv{display:flex;flex-direction:column;gap:7px;font-size:12.5px;color:var(--dim)}
+.kv b{color:var(--text);font-family:'IBM Plex Mono',monospace;font-weight:600}
+.empty{color:var(--dim);text-align:center;padding:40px 10px;font-size:13px}
+input[type=file]{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand">
+      <div class="logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2 22 8v8L12 22 2 16V8z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 7v10M7.5 9.5l9 5M16.5 9.5l-9 5" stroke="#fff" stroke-width="1.2" opacity=".8"/></svg></div>
+      <div><b>OreScope</b><small>Руды · Норникель</small></div>
+    </div>
+    <div class="navlab">Поток анализа</div>
+    <div class="nav" id="nav-upload" onclick="setTab('upload')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0-4 4m4-4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Загрузка и очередь<span class="cnt" id="cnt-upload">0</span></div>
+    <div class="nav" id="nav-review" onclick="setTab('review')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 5c-5 0-8.5 4.5-9.5 7 1 2.5 4.5 7 9.5 7s8.5-4.5 9.5-7c-1-2.5-4.5-7-9.5-7z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.7"/></svg>Экспертная проверка<span class="cnt" id="cnt-review">0</span></div>
+    <div class="nav" id="nav-samples" onclick="setTab('samples')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/></svg>Образцы шлифов<span class="cnt" id="cnt-samples">0</span></div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--green)"></i>Обычные срастания</span>
+      <span><i class="dot" style="background:var(--red)"></i>Тонкие срастания</span>
+      <span><i class="dot" style="background:var(--blue)"></i>Тальк</span>
+      <span style="margin-top:4px;color:rgba(255,255,255,.45)">Правило: зоны оталькования &gt; 10% → оталькованная; иначе по преобладанию срастаний</span>
+    </div>
+  </aside>
+  <main>
+    <header>
+      <div><h1>Классификация руд по OM-шлифам</h1><div class="sub">сегментация сульфидов · типы срастаний · тальк · экспертное правило</div></div>
+      <div style="margin-left:auto" class="kv"><span>очередь: <b id="qcount">0</b></span></div>
+    </header>
+    <div class="content">
+      <div class="col-list">
+        <div id="uploadbox">
+          <div class="upload" id="drop" onclick="document.getElementById('fi').click()">
+            <b>Загрузить изображения</b><br>TIFF / PNG / JPEG · можно партией<br><span style="font-size:11.5px">перетащите файлы или кликните</span>
+            <input id="fi" type="file" multiple accept=".jpg,.jpeg,.png,.tif,.tiff">
+          </div>
+          <div class="umrow">Масштаб, мкм/px (опц.): <input id="um" type="number" step="0.01" min="0" placeholder="—"></div>
+        </div>
+        <div class="navlab" style="color:var(--dim);padding:8px 14px 4px" id="listlab"></div>
+        <div class="samples" id="list"><div class="empty">Пока нет образцов —<br>загрузите изображения шлифов</div></div>
+      </div>
+      <div class="col-view" id="view">
+        <div class="empty" style="margin-top:80px">Выберите образец слева</div>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+let SAMPLES = [], SEL = null, LAYER = 'overlay', TAB = 'upload';
+let Z = {s:1, x:0, y:0};
+const LIST_CAP = 400;
+
+const $ = (q) => document.querySelector(q);
+const chipClass = (s) => ({'В очереди':'q','Обработка':'p','Готово':'ok','Проверка':'rev','Ошибка':'err','Подтверждён':'conf','Отклонён':'err'})[s] || 'q';
+const clsSlug = (c) => c === 'оталькованная' ? 'otalk' : c === 'рядовая' ? 'ryad' : c === 'труднообогатимая' ? 'trudno' : 'none';
+
+// этапы потока: загрузка/очередь -> экспертная проверка -> подтверждённые образцы
+const inUpload  = (s) => !s.results || s.status==='Ошибка';
+const inReview  = (s) => !!s.results && s.status!=='Ошибка' && !s.expert_verdict;
+const inSamples = (s) => !!s.results && !!s.expert_verdict;
+const tabFilter = {upload: inUpload, review: inReview, samples: inSamples};
+const tabLabel  = {upload:'Очередь обработки', review:'Ожидают вердикта эксперта', samples:'Проверенные образцы'};
+const tabEmpty  = {upload:'Очередь пуста —<br>загрузите изображения шлифов',
+                   review:'Нет образцов на проверке —<br>дождитесь окончания обработки',
+                   samples:'Пока нет проверенных образцов —<br>подтвердите или отклоните результат на этапе проверки'};
+
+function filtered(){ return SAMPLES.filter(tabFilter[TAB]); }
+
+async function refresh(){
+  try{
+    const r = await fetch('/api/samples'); SAMPLES = await r.json();
+  }catch(e){ return; }
+  $('#qcount').textContent = SAMPLES.filter(s=>['В очереди','Обработка'].includes(s.status)).length;
+  const nRev = SAMPLES.filter(inReview).length;
+  $('#cnt-upload').textContent = SAMPLES.filter(inUpload).length;
+  $('#cnt-review').textContent = nRev;
+  $('#cnt-review').classList.toggle('hot', nRev>0);
+  $('#cnt-samples').textContent = SAMPLES.filter(inSamples).length;
+  renderList();
+  const f = filtered();
+  if(SEL && !f.some(x=>x.id===SEL)) SEL = null;
+  if(!SEL && f.length){ select(f[0].id); return; }
+  if(SEL){ const s = SAMPLES.find(x=>x.id===SEL); if(s) renderView(s, false); }
+  else $('#view').innerHTML = `<div class="empty" style="margin-top:80px">${tabEmpty[TAB]}</div>`;
+}
+
+function setTab(t){
+  TAB = t; SEL = null;
+  ['upload','review','samples'].forEach(x=>$('#nav-'+x).classList.toggle('active', x===t));
+  $('#uploadbox').style.display = t==='upload' ? '' : 'none';
+  $('#listlab').textContent = tabLabel[t];
+  renderList();
+  const f = filtered();
+  if(f.length) select(f[0].id);
+  else $('#view').innerHTML = `<div class="empty" style="margin-top:80px">${tabEmpty[t]}</div>`;
+}
+
+function renderList(){
+  const el = $('#list');
+  const f = filtered();
+  if(!f.length){ el.innerHTML = `<div class="empty">${tabEmpty[TAB]}</div>`; return; }
+  const shown = f.slice(0, LIST_CAP);
+  el.innerHTML = shown.map(s=>`
+    <div class="card ${s.id===SEL?'sel':''}" onclick="select('${s.id}')">
+      <div class="row1"><span class="name" title="${s.name}">${s.name}</span>
+        <span class="chip ${chipClass(s.status)}">${s.status}</span></div>
+      <div class="row2"><span class="mono">${s.id}</span><span>${s.created||''}</span>
+        ${s.results?`<span style="font-weight:600;color:var(--text)">${s.results.ore_class}</span>`:''}</div>
+    </div>`).join('') +
+    (f.length>LIST_CAP?`<div class="empty">…ещё ${f.length-LIST_CAP} (показаны первые ${LIST_CAP})</div>`:'');
+}
+
+function select(id){ SEL = id; LAYER='overlay'; Z={s:1,x:0,y:0};
+  const s = SAMPLES.find(x=>x.id===id); renderList(); renderView(s, true); }
+
+function renderView(s, rebuild){
+  const v = $('#view');
+  if(!s.results){
+    v.innerHTML = `<div class="empty" style="margin-top:80px">${s.status==='Ошибка'?'Ошибка обработки — смотрите логи':'Образец в обработке… статус: '+s.status}</div>`;
+    return;
+  }
+  const r = s.results;
+  if(rebuild || !document.getElementById('vimg')){
+    v.innerHTML = `
+    <div class="viewer">
+      <div class="vbar">
+        <button id="b-original" onclick="setLayer('original')">Оригинал</button>
+        <button id="b-overlay" onclick="setLayer('overlay')">Маска</button>
+        <button id="b-uncertainty" onclick="setLayer('uncertainty')">Уверенность</button>
+      </div>
+      <div class="stage" id="stage"><img id="vimg" draggable="false"></div>
+      <div class="zoombar">
+        <button onclick="zoomBy(1.4)">+</button><button onclick="zoomBy(0.72)">−</button><button onclick="zoomReset()" style="font-size:11px">1:1</button>
+      </div>
+    </div>
+    <div class="verdict">
+      <div class="cls ${clsSlug(r.ore_class)}">${r.ore_class.toUpperCase()}</div>
+      <p>${r.conclusion}</p>
+      ${r.warnings && r.warnings.length ? `<div class="warn">⚠ ${r.warnings.join('<br>⚠ ')}</div>` : ''}
+    </div>
+    <div class="grid2">
+      <div class="panel"><h3>Количественные метрики</h3>
+        <table><thead><tr><th>Метрика</th><th style="text-align:right">% площади</th>${r.metrics.some(m=>'area_mm2' in m)?'<th style="text-align:right">мм²</th>':''}</tr></thead>
+        <tbody>${r.metrics.map(m=>`<tr><td>${m.metric}</td><td class="num">${m.value_pct??''}</td>${r.metrics.some(x=>'area_mm2' in x)?`<td class="num">${m.area_mm2??''}</td>`:''}</tr>`).join('')}</tbody></table>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="panel"><h3>Экспорт</h3>
+          <div class="btns">
+            <a class="btn primary" href="${r.files.pdf}" target="_blank">PDF-отчёт</a>
+            <a class="btn" href="${r.files.csv}" download>CSV</a>
+            <a class="btn" href="${r.files.geojson}" download>GeoJSON</a>
+            <a class="btn" href="${r.files.params}" target="_blank">JSON-лог</a>
+          </div>
+        </div>
+        <div class="panel"><h3>Экспертная проверка</h3>
+          <div class="btns">
+            <button class="btn ok" onclick="review('${s.id}','approved')">Подтвердить</button>
+            <button class="btn bad" onclick="review('${s.id}','rejected')">Отклонить</button>
+          </div>
+          <div class="kv" style="margin-top:12px">
+            <span>вердикт эксперта: <b>${s.expert_verdict||'—'}</b></span>
+            <span>модель талька: <b>${r.talc_model}</b> · уверенность <b>${r.talc_confidence}</b></span>
+            <span>время анализа: <b>${r.elapsed_s} с</b></span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+    initViewer();
+  }
+  // обновить слой и подсветку кнопок
+  const img = document.getElementById('vimg');
+  const url = r.files[LAYER];
+  if(img.dataset.url !== url){ img.dataset.url = url; img.src = url; }
+  ['original','overlay','uncertainty'].forEach(l=>{
+    const b = document.getElementById('b-'+l); if(b) b.classList.toggle('on', l===LAYER);
+  });
+}
+
+function setLayer(l){ LAYER = l; const s = SAMPLES.find(x=>x.id===SEL); if(s) renderView(s, false); }
+
+function applyZ(){ const img = document.getElementById('vimg');
+  if(img) img.style.transform = `translate(${Z.x}px,${Z.y}px) scale(${Z.s})`; }
+function zoomBy(f){ const st = document.getElementById('stage'); if(!st) return;
+  const rect = st.getBoundingClientRect(); const cx = rect.width/2, cy = rect.height/2;
+  Z.x = cx - (cx - Z.x)*f; Z.y = cy - (cy - Z.y)*f; Z.s *= f; applyZ(); }
+function zoomReset(){ Z={s:1,x:0,y:0}; applyZ(); fitImage(); }
+function fitImage(){ const img = document.getElementById('vimg'), st = document.getElementById('stage');
+  if(!img||!st||!img.naturalWidth) return;
+  const r = st.getBoundingClientRect();
+  const s = Math.min(r.width/img.naturalWidth, r.height/img.naturalHeight);
+  Z = {s:s, x:(r.width-img.naturalWidth*s)/2, y:(r.height-img.naturalHeight*s)/2}; applyZ(); }
+
+function initViewer(){
+  const st = document.getElementById('stage'), img = document.getElementById('vimg');
+  img.onload = fitImage;
+  let drag = null;
+  st.addEventListener('pointerdown', e=>{ drag={x:e.clientX-Z.x, y:e.clientY-Z.y}; st.setPointerCapture(e.pointerId); st.style.cursor='grabbing'; });
+  st.addEventListener('pointermove', e=>{ if(drag){ Z.x=e.clientX-drag.x; Z.y=e.clientY-drag.y; applyZ(); } });
+  st.addEventListener('pointerup', ()=>{ drag=null; st.style.cursor='grab'; });
+  st.addEventListener('wheel', e=>{ e.preventDefault();
+    const rect = st.getBoundingClientRect(); const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+    const f = e.deltaY<0 ? 1.18 : 0.85;
+    Z.x = mx-(mx-Z.x)*f; Z.y = my-(my-Z.y)*f; Z.s*=f; applyZ(); }, {passive:false});
+}
+
+async function review(id, verdict){
+  await fetch(`/api/samples/${id}/review`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({verdict})});
+  await refresh(); // на этапе проверки образец уходит в «Образцы», выбирается следующий
+}
+
+async function uploadFiles(files){
+  const fd = new FormData();
+  [...files].forEach(f=>fd.append('files', f));
+  const um = parseFloat($('#um').value)||0;
+  fd.append('um_per_px', um);
+  await fetch('/api/samples', {method:'POST', body:fd});
+  refresh();
+}
+$('#fi').addEventListener('change', e=>uploadFiles(e.target.files));
+const drop = $('#drop');
+drop.addEventListener('dragover', e=>{e.preventDefault(); drop.classList.add('drag');});
+drop.addEventListener('dragleave', ()=>drop.classList.remove('drag'));
+drop.addEventListener('drop', e=>{e.preventDefault(); drop.classList.remove('drag'); uploadFiles(e.dataTransfer.files);});
+
+setTab('upload');
+refresh();
+setInterval(refresh, 2500);
+</script>
+</body>
+</html>

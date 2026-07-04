@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;}
+body{margin:0;font-family:'IBM Plex Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-thumb{background:rgba(120,150,180,.35);border-radius:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+@keyframes shimmer{100%{transform:translateX(220%);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;cursor:ew-resize;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:0;height:0;}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{opacity:.35;}
+</style>
+</helmet>
+<div style="display:flex;height:100vh;width:100%;overflow:hidden;background:{{c.bg}};color:{{c.text}};font-size:14px;">
+
+  <aside style="width:240px;flex:none;background:{{c.sidebar}};display:flex;flex-direction:column;padding:18px 14px;gap:6px;">
+    <div style="display:flex;align-items:center;gap:11px;padding:6px 8px 18px;">
+      <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#2E8FE0,#0091D6);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 4px 14px rgba(0,145,214,.4);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2 22 8v8L12 22 2 16V8z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 7v10M7.5 9.5l9 5M16.5 9.5l-9 5" stroke="#fff" stroke-width="1.2" opacity=".8"/></svg>
+      </div>
+      <div>
+        <div style="color:#fff;font-weight:700;font-size:16px;letter-spacing:-.3px;">{{brandName}}</div>
+        <div style="color:rgba(255,255,255,.5);font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;">QC · Норникель</div>
+      </div>
+    </div>
+    <div style="color:rgba(255,255,255,.4);font-size:10.5px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;padding:6px 10px 4px;">Анализ</div>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="3">
+      <div style="{{ item.wrapStyle }}" onClick="{{ item.onClick }}" style-hover="background:rgba(255,255,255,.08)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex:none;"><path d="{{ item.icon }}" stroke="{{ item.iconColor }}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>{{ item.label }}</span>
+        <sc-if value="{{ item.badge }}" hint-placeholder-val="{{ false }}">
+          <span style="margin-left:auto;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:#E8943A;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">{{ item.badge }}</span>
+        </sc-if>
+      </div>
+    </sc-for>
+  </aside>
+
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="display:flex;align-items:center;gap:16px;padding:16px 26px;border-bottom:1px solid {{c.border}};background:{{c.surface}};flex:none;">
+      <div style="min-width:0;">
+        <div style="font-size:18px;font-weight:700;letter-spacing:-.3px;">{{ viewTitle }}</div>
+        <div style="font-size:12.5px;color:{{c.textDim}};margin-top:1px;">{{ viewSub }}</div>
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:12px;">
+        <button onClick="{{ onToggleTheme }}" style="display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:9px;border:1px solid {{c.border}};background:{{c.surface2}};color:{{c.text}};cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:600;" style-hover="border-color:{{c.borderHi}}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="{{ themeIcon }}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          {{ themeLabel }}
+        </button>
+      </div>
+    </header>
+
+    <div style="flex:1;overflow-y:auto;padding:24px 26px;min-height:0;">
+
+      <!-- OVERVIEW -->
+      <sc-if value="{{ vOverview }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:18px;">
+
+          <div style="position:relative;align-self:flex-start;">
+            <button onClick="{{ onToggleBatch }}" style="display:flex;align-items:center;gap:11px;padding:10px 14px;border-radius:11px;border:1px solid {{c.border}};background:{{c.surface}};color:{{c.text}};cursor:pointer;font-family:inherit;box-shadow:{{c.shadow}};" style-hover="border-color:{{c.borderHi}}">
+              <span style="width:30px;height:30px;border-radius:8px;background:{{c.primaryDim}};display:flex;align-items:center;justify-content:center;flex:none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 7h18M3 12h18M3 17h18" stroke="{{c.primary}}" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </span>
+              <span style="text-align:left;">
+                <span style="display:block;font-size:10.5px;color:{{c.textDim}};font-weight:600;text-transform:uppercase;letter-spacing:.4px;">Партия</span>
+                <span style="display:block;font-size:15px;font-weight:700;">{{ batchCur.label }} <span style="font-size:12px;color:{{c.textDim}};font-weight:500;">· {{ batchCur.sub }}</span></span>
+              </span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="margin-left:6px;opacity:.6;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <sc-if value="{{ batchOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;top:calc(100% + 8px);left:0;width:300px;background:{{c.surface}};border:1px solid {{c.border}};border-radius:12px;box-shadow:0 18px 44px rgba(13,38,66,.22);z-index:30;overflow:hidden;">
+                <div style="padding:11px;border-bottom:1px solid {{c.border}};display:flex;align-items:center;gap:9px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="{{c.textDim}}" stroke-width="1.8"/><path d="M21 21l-4-4" stroke="{{c.textDim}}" stroke-width="1.8" stroke-linecap="round"/></svg>
+                  <input value="{{ batchQuery }}" onInput="{{ onBatchSearch }}" placeholder="Поиск партии…" style="flex:1;border:none;outline:none;background:transparent;color:{{c.text}};font-family:inherit;font-size:13px;"/>
+                </div>
+                <div style="max-height:260px;overflow-y:auto;padding:6px;">
+                  <sc-for list="{{ batchFiltered }}" as="o" hint-placeholder-count="4">
+                    <div style="display:flex;align-items:center;border-radius:8px;background:{{ o.bg }};" style-hover="background:{{c.surface2}}">
+                      <div onClick="{{ o.onPick }}" style="flex:1;display:flex;align-items:center;gap:10px;padding:9px 11px;cursor:pointer;min-width:0;">
+                        <span style="font-size:13.5px;font-weight:600;color:{{ o.idColor }};">{{ o.label }}</span>
+                        <span style="font-size:11.5px;color:{{c.textDim}};">{{ o.sub }}</span>
+                        <span style="margin-left:auto;font-size:11.5px;color:{{c.textDim}};font-family:'IBM Plex Mono',monospace;">{{ o.meta }}</span>
+                      </div>
+                      <span onClick="{{ o.onDelete }}" title="Удалить партию" style="padding:0 11px;cursor:pointer;color:{{c.textDim}};font-size:16px;line-height:1;" style-hover="color:{{c.bad}}">×</span>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ batchEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:18px;text-align:center;font-size:12.5px;color:{{c.textDim}};">Ничего не найдено</div></sc-if>
+                  <div onClick="{{ onAddBatch }}" style="display:flex;align-items:center;gap:8px;padding:10px 11px;margin-top:4px;border-top:1px solid {{c.border}};cursor:pointer;color:{{c.primary}};font-weight:600;font-size:13px;" style-hover="background:{{c.surface2}}"><span style="font-size:17px;line-height:1;">＋</span> Новая партия</div>
+                </div>
+              </div>
+              <div onClick="{{ onCloseBatch }}" style="position:fixed;inset:0;z-index:20;"></div>
+            </sc-if>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
+            <sc-for list="{{ okpis }}" as="k" hint-placeholder-count="4">
+              <div style="background:{{c.surface}};border:1px solid {{c.border}};border-radius:14px;padding:18px;box-shadow:{{c.shadow}};">
+                <div style="font-size:12px;color:{{c.textDim}};font-weight:500;margin-bottom:11px;">{{ k.label }}</div>
+                <div style="font-size:32px;font-weight:700;font-family:'IBM Plex Mono',monospace;letter-spacing:-1px;line-height:1;color:{{ k.color }};">{{ k.value }}</div>
+                <div style="font-size:11.5px;color:{{c.textDim}};margin-top:9px;">{{ k.sub }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1.7fr 1fr;gap:18px;align-items:stretch;">
+            <div style="background:{{c.surface}};border:1px solid {{c.border}};border-radius:14px;padding:20px;box-shadow:{{c.shadow}};display:flex;flex-direction:column;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                <div><div style="font-size:14px;font-weight:600;">Точность модели по партиям</div><div style="font-size:12px;color:{{c.textDim}};">наведите на точку · валидация vs реальные снимки</div></div>
+                <div style="display:flex;gap:14px;font-size:11.5px;">
+                  <span style="display:flex;align-items:center;gap:6px;"><span style="width:14px;height:3px;background:{{c.accent}};border-radius:2px;"></span>Валидация</span>
+                  <span style="display:flex;align-items:center;gap:6px;color:{{c.textDim}};"><span style="width:14px;height:3px;background:{{c.textFaint}};border-radius:2px;"></span>Real</span>
+                </div>
+              </div>
+              <div style="position:relative;flex:1;min-height:200px;">
+                <svg viewBox="0 0 100 56" preserveAspectRatio="none" style="width:100%;height:100%;display:block;">
+                  <polyline points="{{ trLine2 }}" fill="none" stroke="{{c.textFaint}}" stroke-width="0.7" stroke-dasharray="2 1.6" vector-effect="non-scaling-stroke"/>
+                  <polyline points="{{ trLine1 }}" fill="none" stroke="{{c.accent}}" stroke-width="1.1" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+                  <sc-for list="{{ trDots }}" as="d" hint-placeholder-count="12">
+                    <circle cx="{{ d.cx2 }}" cy="{{ d.cy2 }}" r="1.2" fill="{{c.textFaint}}"/>
+                    <circle cx="{{ d.cx }}" cy="{{ d.cy }}" r="3.4" fill="transparent" onMouseEnter="{{ d.onEnter }}" onMouseLeave="{{ d.onLeave }}" style="cursor:pointer;"/>
+                    <circle cx="{{ d.cx }}" cy="{{ d.cy }}" r="1.6" fill="{{c.accent}}"/>
+                  </sc-for>
+                </svg>
+                <sc-if value="{{ trTip }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute;left:{{ trTip.x }}%;top:{{ trTip.y }}%;transform:translate(-50%,-130%);background:{{c.text}};color:{{c.surface}};padding:7px 11px;border-radius:8px;font-size:11.5px;white-space:nowrap;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.25);font-family:'IBM Plex Mono',monospace;">
+                    {{ trTip.label }} · вал {{ trTip.acc }}% · real {{ trTip.real }}%
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+            <div style="background:{{c.surface}};border:1px solid {{c.border}};border-radius:14px;padding:20px;box-shadow:{{c.shadow}};">
+              <div style="font-size:14px;font-weight:600;margin-bottom:14px;">Sim-to-Real устойчивость</div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:14px;">
+                <svg viewBox="0 0 120 120" style="width:120px;height:120px;flex:none;">
+                  <path d="{{ gaugeBg }}" fill="{{c.surface2}}"/>
+                  <path d="{{ gaugePath }}" fill="{{c.primary}}"/>
+                  <text x="60" y="56" text-anchor="middle" font-size="26" font-weight="700" fill="{{c.text}}" font-family="IBM Plex Mono">{{ gaugeVal }}</text>
+                  <text x="60" y="74" text-anchor="middle" font-size="11" fill="{{c.textDim}}">средняя увер.</text>
+                </svg>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:11px;">
+                <sc-for list="{{ metricTasks }}" as="m" hint-placeholder-count="4">
+                  <div>
+                    <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px;"><span style="color:{{c.textDim}};">{{ m.task }}</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:600;">{{ m.real }}%</span></div>
+                    <div style="height:6px;border-radius:4px;background:{{c.surface2}};position:relative;overflow:hidden;">
+                      <div style="position:absolute;inset:0;width:{{ m.simW }}%;background:{{c.border}};border-radius:4px;"></div>
+                      <div style="position:absolute;inset:0;width:{{ m.realW }}%;background:{{c.primary}};border-radius:4px;"></div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:stretch;">
+            <div style="background:{{c.surface}};border:1px solid {{c.border}};border-radius:14px;padding:20px;box-shadow:{{c.shadow}};">
+              <div style="font-size:14px;font-weight:600;margin-bottom:16px;">Статусы обработки партии</div>
+              <div style="display:flex;height:13px;border-radius:7px;overflow:hidden;margin-bottom:18px;">
+                <sc-for list="{{ statusDist }}" as="s" hint-placeholder-count="3"><div style="width:{{ s.pct }}%;background:{{ s.color }};"></div></sc-for>
+              </div>
+              <sc-for list="{{ statusDist }}" as="s" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid {{c.border}};">
+                  <span style="width:10px;height:10px;border-radius:3px;background:{{ s.color }};flex:none;"></span>
+                  <span style="font-size:13px;flex:1;">{{ s.label }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;">{{ s.count }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:{{c.textDim}};width:42px;text-align:right;">{{ s.pctL }}%</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="background:{{c.surface}};border:1px solid {{c.border}};border-radius:14px;padding:20px;box-shadow:{{c.shadow}};">
+              <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Распределение классов руды</div>
+              <div style="font-size:12px;color:{{c.textDim}};margin-bottom:10px;">по {{ batchCount }} образцам партии</div>
+              <div style="display:flex;align-items:center;gap:18px;">
+                <svg viewBox="0 0 280 280" style="width:150px;height:150px;flex:none;">
+                  <sc-for list="{{ batchDonut }}" as="s" hint-placeholder-count="5"><path d="{{ s.d }}" fill="{{ s.color }}"/></sc-for>
+                  <text x="140" y="150" text-anchor="middle" font-size="15" fill="{{c.textDim}}">состав</text>
+                </svg>
+                <div style="flex:1;display:flex;flex-direction:column;gap:7px;min-width:0;">
+                  <sc-for list="{{ batchLegend }}" as="p" hint-placeholder-count="5">
+                    <div style="display:flex;align-items:center;gap:9px;">
+                      <span style="width:11px;height:11px;border-radius:3px;background:{{ p.color }};flex:none;"></span>
+                      <span style="font-size:12.5px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ p.name }}</span>
+                      <span style="font-size:12.5px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:{{c.textDim}};">{{ p.pct }}%</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          
+
+          <div style="background:{{c.surface}};border:1px solid {{c.border}};border-radius:14px;padding:20px;box-shadow:{{c.shadow}};">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+              <span style="font-size:14px;font-weight:600;">Образцы партии</span>
+              <button onClick="{{ onExportBatchCsv }}" title="Экспорт всей партии в CSV" style="margin-left:auto;display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;border:1px solid {{c.border}};background:{{c.surface2}};color:{{c.text}};cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;" style-hover="border-color:{{c.borderHi}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3v12M8 11l4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Экспорт CSV</button>
+            </div>
+            <div style="font-size:12px;color:{{c.textDim}};margin-bottom:12px;">клик по строке → открыть в анализе</div>
+            <div style="display:grid;grid-template-columns:92px 90px 1.4fr 110px 80px 120px;gap:10px;font-size:10.5px;color:{{c.textFaint}};font-weight:600;text-transform:uppercase;letter-spacing:.4px;padding:0 4px 10px;border-bottom:1px solid {{c.border}};">
+              <span>ID</span><span>Данные</span><span>Класс руды</span><span>Тонкие срост.</span><span>Тальк</span><span>Статус</span>
+            </div>
+            <sc-for list="{{ recentRows }}" as="r" hint-placeholder-count="8">
+              <div onClick="{{ r.onClick }}" style="display:grid;grid-template-columns:92px 90px 1.4fr 110px 80px 120px;gap:10px;align-items:center;font-size:13px;padding:11px 4px;border-bottom:1px solid {{c.border}};cursor:pointer;" style-hover="background:{{c.surface2}}">
+                <span style="font-family:'IBM Plex Mono',monospace;font-weight:600;color:{{c.primary}};">{{ r.id }}</span>
+                <span style="display:flex;gap:4px;"><sc-for list="{{ r.modChips }}" as="mc" hint-placeholder-count="2"><span style="font-size:9.5px;font-weight:700;color:#fff;background:{{ mc.color }};padding:2px 5px;border-radius:4px;">{{ mc.m }}</span></sc-for></span>
+                <span style="color:{{c.textDim}};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.phase }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace;color:{{ r.defColor }};">{{ r.defLabel }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-weight:600;color:{{ r.agreeColor }};">{{ r.agree }}%</span>
+                <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;"><span style="width:7px;height:7px;border-radius:50%;background:{{ r.statusColor }};"></span>{{ r.status }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+        </div>
+      </sc-if>
+
+      <!-- ANALYSIS -->
+      <sc-if value="{{ vAnalysis }}" hint-placeholder-val="{{ false }}">
+
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;flex-wrap:wrap;">
+          <div style="position:relative;">
+            <button onClick="{{ onToggleBatch }}" style="display:flex;align-items:center;gap:11px;padding:10px 14px;border-radius:11px;border:1px solid {{c.border}};background:{{c.surface}};color:{{c.text}};cursor:pointer;font-family:inherit;box-shadow:{{c.shadow}};" style-hover="border-color:{{c.borderHi}}">
+              <span style="width:30px;height:30px;border-radius:8px;background:{{c.primaryDim}};display:flex;align-items:center;justify-content:center;flex:none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 7h18M3 12h18M3 17h18" stroke="{{c.primary}}" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </span>
+              <span style="text-align:left;">
+                <span style="display:block;font-size:10.5px;color:{{c.textDim}};font-weight:600;text-transform:uppercase;letter-spacing:.4px;">Партия</span>
+                <span style="display:block;font-size:15px;font-weight:700;">{{ batchCur.label }} <span style="font-size:12px;color:{{c.textDim}};font-weight:500;">· {{ batchCur.sub }}</span></span>
+              </span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="margin-left:6px;opacity:.6;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <sc-if value="{{ batchOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;top:calc(100% + 8px);left:0;width:300px;background:{{c.surface}};border:1px solid {{c.border}};border-radius:12px;box-shadow:0 18px 44px rgba(13,38,66,.22);z-index:30;overflow:hidden;">
+                <div style="padding:11px;border-bottom:1px solid {{c.border}};display:flex;align-items:center;gap:9px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="{{c.textDim}}" stroke-width="1.8"/><path d="M21 21l-4-4" stroke="{{c.textDim}}" stroke-width="1.8" stroke-linecap="round"/></svg>
+                  <input value="{{ batchQuery }}" onInput="{{ onBatchSearch }}" placeholder="Поиск партии…" style="flex:1;border:none;outline:none;background:transparent;color:{{c.text}};font-family:inherit;font-size:13px;"/>
+                </div>
+                <div style="max-height:260px;overflow-y:auto;padding:6px;">
+                  <sc-for list="{{ batchFiltered }}" as="o" hint-placeholder-count="4">
+                    <div style="display:flex;align-items:center;border-radius:8px;background:{{ o.bg }};" style-hover="background:{{c.surface2}}">
+                      <div onClick="{{ o.onPick }}" style="flex:1;display:flex;align-items:center;gap:10px;padding:9px 11px;cursor:pointer;min-width:0;">
+                        <span style="font-size:13.5px;font-weight:600;color:{{ o.idColor }};">{{ o.label }}</span>
+                        <span style="font-size:11.5px;color:{{c.textDim}};">{{ o.sub }}</span>
+                        <span style="margin-left:auto;font-size:11.5px;color:{{c.textDim}};font-family:'IBM Plex Mono',monospace;">{{ o.meta }}</span>
+                      </div>
+                      <span onClick="{{ o.onDelete }}" title="Удалить партию" style="padding:0 11px;cursor:pointer;color:{{c.textDim}};font-size:16px;line-height:1;" style-hover="color:{{c.bad}}">×</span>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ batchEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:18px;text-align:center;font-size:12.5px;color:{{c.textDim}};">Ничего не найдено</div></sc-if>
+                  <div onClick="{{ onAddBatch }}" style="display:flex;align-items:center;gap:8px;padding:10px 11px;margin-top:4px;border-top:1px solid {{c.border}};cursor:pointer;color:{{c.primary}};font-weight:600;font-size:13px;" style-hover="background:{{c.surface2}}"><span style="font-size:17px;line-height:1;">＋</span> Новая партия</div>
+                </div>
+              </div>
+              <div onClick="{{ onCloseBatch }}" style="position:fixed;inset:0;z-index:20;"></div>
+            </sc-if>
+          </div>
+          <div style="position:relative;">
+            <button onClick="{{ onToggleSample }}" style="display:flex;align-items:center;gap:11px;padding:10px 14px;border-radius:11px;border:1px solid {{c.border}};background:{{c.surface}};color:{{c.text}};cursor:pointer;font-family:inherit;box-shadow:{{c.shadow}};" style-hover="border-color:{{c.borderHi}}">
+              <span style="width:30px;height:30px;border-radius:8px;background:{{c.primaryDim}};display:flex;align-items:center;justify-content:center;flex:none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2 22 8v8L12 22 2 16V8z" stroke="{{c.primary}}" stroke-width="1.6" stroke-linejoin="round"/></svg>
+              </span>
+              <span style="text-align:left;">
+                <span style="display:block;font-size:10.5px;color:{{c.textDim}};font-weight:600;text-transform:uppercase;letter-spacing:.4px;">Образец</span>
+                <span style="display:block;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700;">{{ sampleVal }}</span>
+              </span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="margin-left:6px;opacity:.6;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <sc-if value="{{ sampleOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;top:calc(100% + 8px);left:0;width:320px;background:{{c.surface}};border:1px solid {{c.border}};border-radius:12px;box-shadow:0 18px 44px rgba(13,38,66,.22);z-index:30;overflow:hidden;">
+                <div style="padding:11px;border-bottom:1px solid {{c.border}};display:flex;align-items:center;gap:9px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="{{c.textDim}}" stroke-width="1.8"/><path d="M21 21l-4-4" stroke="{{c.textDim}}" stroke-width="1.8" stroke-linecap="round"/></svg>
+                  <input value="{{ sampleQuery }}" onInput="{{ onSampleSearch }}" placeholder="Поиск по ID образца…" style="flex:1;border:none;outline:none;background:transparent;color:{{c.text}};font-family:inherit;font-size:13px;"/>
+                </div>
+                <div style="max-height:260px;overflow-y:auto;padding:6px;">
+                  <sc-for list="{{ sampleFiltered }}" as="o" hint-placeholder-count="6">
+                    <div onClick="{{ o.onPick }}" style="{{ o.style }}" style-hover="background:{{c.surface2}}">
+                      <span style="font-family:'IBM Plex Mono',monospace;font-size:13.5px;font-weight:600;color:{{ o.idColor }};">{{ o.id }}</span>
+                      <span style="margin-left:auto;font-size:11.5px;color:{{c.textDim}};">{{ o.meta }}</span>
+                      <span style="width:7px;height:7px;border-radius:50%;background:{{ o.dot }};flex:none;"></span>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ sampleEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:18px;text-align:center;font-size:12.5px;color:{{c.textDim}};">Ничего не найдено</div></sc-if>
+                </div>
+              </div>
+              <div onClick="{{ onCloseSample }}" style="position:fixed;inset:0;z-index:20;"></div>
+            </sc-if>
+          </div>
+          <div style="display:flex;gap:18px;flex-wrap:wrap;">
+            <sc-for list="{{ quickStats }}" as="q" hint-placeholder-count="3">
+              <div style="display:flex;flex-direction:column;">
+                <span style="font-size:10.5px;color:{{c.textDim}};font-weight:600;text-transform:uppercase;letter-spacing:.4px;">{{ q.label }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:700;color:{{ q.color }};">{{ q.value }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+            <button onClick="{{ onExportCsv }}" title="Экспорт метрик в CSV" style="display:flex;align-items:center;gap:6px;padding:9px 13px;border-radius:9px;border:1px solid {{c.border}};background:{{c.surface}};color:{{c.text}};cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:600;" style-hover="border-color:{{c.borderHi}}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3v12M8 11l4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>CSV</button>
+            <button onClick="{{ onExportPdf }}" title="Сформировать PDF-отчёт" style="display:flex;align-items:center;gap:6px;padding:9px 13px;border-radius:9px;border:none;background:{{c.primary}};color:#fff;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:600;" style-hover="filter:brightness(1.08)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>PDF-отчёт</button>
+          </div>
+        </div>
+
+        <!-- expert verdict panel -->
+        <sc-if value="{{ anaNeedsReview }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;margin-bottom:18px;border-radius:12px;border:1px solid {{c.warn}};background:{{c.surface}};box-shadow:{{c.shadow}};">
+            <span style="width:34px;height:34px;border-radius:9px;background:{{c.warn}}22;display:flex;align-items:center;justify-content:center;flex:none;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.2-2.9 7.4-7 8.5-4.1-1.1-7-4.3-7-8.5V6z" stroke="{{c.warn}}" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9v4M12 16v.5" stroke="{{c.warn}}" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </span>
+            <div style="min-width:0;">
+              <div style="font-size:13.5px;font-weight:600;">Требуется экспертная проверка</div>
+              <div style="font-size:12px;color:{{c.textDim}};">подтвердите класс модели «{{ anaModelClass }}», выберите другой или отклоните образец; в очередь проверки попадают образцы с уверенностью < 95%</div>
+            </div>
+            <button onClick="{{ onRejectCur }}" style="margin-left:auto;padding:9px 16px;border-radius:9px;border:1px solid {{c.bad}};background:{{c.surface2}};color:{{c.bad}};cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;flex:none;" style-hover="background:{{c.bad}};color:#fff">✕ Отклонить</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin:-8px 0 18px;padding:12px 18px;border-radius:12px;border:1px solid {{c.border}};background:{{c.surface2}};flex-wrap:wrap;">
+            <span style="font-size:12px;color:{{c.textDim}};font-weight:600;">Подтвердить как:</span>
+            <sc-for list="{{ anaClassOpts }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="filter:brightness(1.05)">{{ o.label }}</button></sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ anaApproved }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 18px;margin-bottom:18px;border-radius:12px;border:1px solid {{c.ok}};background:{{c.ok}}14;flex-wrap:wrap;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.2-2.9 7.4-7 8.5-4.1-1.1-7-4.3-7-8.5V6zM9 12l2 2 4-4" stroke="{{c.ok}}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span style="font-size:13.5px;font-weight:600;color:{{c.ok}};">Подтверждён экспертом</span>
+            <span style="font-size:12px;color:{{c.textDim}};">класс:</span>
+            <sc-for list="{{ anaClassOpts }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="filter:brightness(1.05)">{{ o.label }}</button></sc-for>
+            <button onClick="{{ onRejectCur }}" style="margin-left:auto;padding:8px 14px;border-radius:9px;border:1px solid {{c.bad}};background:{{c.surface2}};color:{{c.bad}};cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:600;" style-hover="background:{{c.bad}};color:#fff">✕ Отклонить</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ anaRejected }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 18px;margin-bottom:18px;border-radius:12px;border:1px solid {{c.bad}};background:{{c.bad}}14;flex-wrap:wrap;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="{{c.bad}}" stroke-width="1.8"/><path d="M9 9l6 6M15 9l-6 6" stroke="{{c.bad}}" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <span style="font-size:13.5px;font-weight:600;color:{{c.bad}};">Отклонён экспертом</span>
+            <span style="font-size:12px;color:{{c.textDim}};">подтвердить как:</span>
+            <sc-for list="{{ anaClassOpts }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="filter:brightness(1.05)">{{ o.label }}</button></sc-for>
+          </div>
+        </sc-if>
+
+        <!-- row 1: image + xrd -->
+        <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:18px;align-items:start;margin-bottom:18px;">
+          <div style="background:{{c.surface}};border:1px solid {{c.border}};border-radius:14px;padding:16px;box-shadow:{{c.shadow}};display:flex;flex-direction:column;">
+            <div style="display:flex;align-items:center;gap:9px;margin-bottom:13px;flex-wrap:wrap;">
+              <span style="font-size:13px;font-weight:600;">OM · сегментация шлифа</span>
+              <div style="display:flex;gap:2px;padding:3px;border-radius:9px;background:{{c.surface2}};border:1px solid {{c.border}};">
+                <sc-for list="{{ modeBtns }}" as="b" hint-placeholder-count="2"><button onClick="{{ b.onClick }}" style="{{ b.style }}">{{ b.label }}</button></sc-for>
+              </div>
+              <button onClick="{{ onToggleUnc }}" style="{{ uncBtnStyle }}" style-hover="border-color:{{c.borderHi}}">Уверенность</button>
+              <div style="margin-left:auto;display:flex;gap:6px;align-items:center;">
+                <button onClick="{{ onZoomOut }}" style="width:30px;height:30px;border-radius:8px;border:1px solid {{c.border}};background:{{c.surface2}};color:{{c.text}};cursor:pointer;font-size:17px;line-height:1;">−</button>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;width:44px;text-align:center;color:{{c.textDim}};">{{ zoomPct }}%</span>
+                <button onClick="{{ onZoomIn }}" style="width:30px;height:30px;border-radius:8px;border:1px solid {{c.border}};background:{{c.surface2}};color:{{c.text}};cursor:pointer;font-size:17px;line-height:1;">+</button>
+                <button onClick="{{ onExpandSem }}" title="На весь экран" style="width:30px;height:30px;border-radius:8px;border:1px solid {{c.border}};background:{{c.surface2}};color:{{c.text}};cursor:pointer;display:flex;align-items:center;justify-content:center;" style-hover="border-color:{{c.borderHi}}">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </button>
+              </div>
+            </div>
+            <div ref="{{ semWrapRef }}" style="position:relative;height:420px;border-radius:12px;overflow:hidden;background:#000;cursor:{{ semCursor }};">
+              <canvas ref="{{ semRef }}" onMouseDown="{{ onSemDown }}" onMouseMove="{{ onSemMove }}" onMouseUp="{{ onSemUp }}" onMouseLeave="{{ onSemUp }}" style="width:100%;height:100%;display:block;touch-action:none;"></canvas>
+              <div style="position:absolute;left:14px;top:14px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;padding:4px 9px;border-radius:6px;font-family:'IBM Plex Mono',monospace;">{{ imgBadge }}</div>
+              <div style="position:absolute;right:14px;top:14px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;padding:4px 9px;border-radius:6px;">{{ modeHint }}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;margin-top:12px;">
+              <span style="font-size:11.5px;color:{{c.textDim}};white-space:nowrap;">оригинал</span>
+              <input type="range" min="0" max="100" value="{{ sliderVal }}" onInput="{{ onSlider }}" style="flex:1;height:6px;border-radius:4px;background:linear-gradient(90deg,{{c.textFaint}},{{c.accent}});cursor:ew-resize;"/>
+              <span style="font-size:11.5px;color:{{c.accent}};white-space:nowrap;font-weight:600;">сегментация</span>
+            </div>
+            <div style="margin-top:13px;display:flex;flex-wrap:wrap;gap:6px;">
+              <sc-for list="{{ phaseRows }}" as="p" hint-placeholder-count="5">
+                <div onClick="{{ p.onToggle }}" style="{{ p.chipStyle }}" style-hover="border-color:{{c.borderHi}}">
+                  <span style="width:11px;height:11px;border-radius:3px;background:{{ p.color }};opacity:{{ p.eyeOpacity }};flex:none;"></span>
+                  <span style="font-size:11.5px;">{{ p.short }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:{{c.textDim}};">{{ p.pct }}%</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="background:{{c.surface}};border:1px solid {{c.border}};border-radius:14px;padding:18px;box-shadow:{{c.shadow}};">
+            <div style="font-size:13px;font-weight:600;margin-bottom:13px;">Классификация руды</div>
+            <div style="display:inline-flex;align-items:center;gap:9px;padding:9px 16px;border-radius:11px;background:{{ oreClassColor }}18;border:1px solid {{ oreClassColor }};margin-bottom:14px;">
+              <span style="width:12px;height:12px;border-radius:4px;background:{{ oreClassColor }};"></span>
+              <span style="font-size:17px;font-weight:700;color:{{ oreClassColor }};">{{ oreClass }}</span>
+            </div>
+            <div style="font-size:13px;line-height:1.55;color:{{c.textDim}};margin-bottom:16px;">{{ oreConclusion }}</div>
+            <div style="display:flex;flex-direction:column;gap:11px;">
+              <sc-for list="{{ oreBars }}" as="b" hint-placeholder-count="3">
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+                    <span style="display:flex;align-items:center;gap:7px;"><span style="width:10px;height:10px;border-radius:3px;background:{{ b.color }};"></span>{{ b.name }}</span>
+                    <span style="font-family:'IBM Plex Mono',monospace;color:{{c.textDim}};">{{ b.pctL }}%</span>
+                  </div>
+                  <div style="height:8px;border-radius:5px;background:{{c.surface2}};overflow:hidden;"><div style="height:100%;width:{{ b.pctW }}%;background:{{ b.color }};border-radius:5px;"></div></div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="font-size:11px;color:{{c.textFaint}};margin-top:14px;line-height:1.5;">Зелёный — обычные срастания (рядовая руда), красный — тонкие срастания (труднообогатимая), синий — тальк. Порог оталькованности — 10%.</div>
+          </div>
+        </div>
+
+        <!-- row 2: defect map + roi/summary -->
+        <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:18px;align-items:start;margin-bottom:24px;">
+          <div style="background:{{c.surface}};border:1px solid {{c.border}};border-radius:14px;padding:16px;box-shadow:{{c.shadow}};display:flex;flex-direction:column;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:13px;">
+              <span style="font-size:13px;font-weight:600;">Карта срастаний</span>
+              <span style="font-size:11.5px;color:{{c.textDim}};">зелёный — обычные · красный — тонкие</span>
+              <button onClick="{{ onToggleHeat }}" style="margin-left:auto;padding:7px 13px;border-radius:8px;border:1px solid {{c.border}};background:{{c.surface2}};color:{{c.text}};cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;" style-hover="border-color:{{c.borderHi}}">{{ heatLabel }}</button>
+              <button onClick="{{ onExpandDef }}" title="На весь экран" style="width:30px;height:30px;border-radius:8px;border:1px solid {{c.border}};background:{{c.surface2}};color:{{c.text}};cursor:pointer;display:flex;align-items:center;justify-content:center;" style-hover="border-color:{{c.borderHi}}">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <div style="position:relative;height:340px;border-radius:12px;overflow:hidden;background:#000;">
+              <canvas ref="{{ defRef }}" onMouseDown="{{ onDefDown }}" onMouseMove="{{ onDefMove }}" onMouseUp="{{ onDefUp }}" onMouseLeave="{{ onDefUp }}" style="width:100%;height:100%;display:block;cursor:grab;touch-action:none;"></canvas>
+              <div style="position:absolute;left:14px;bottom:14px;display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.55);padding:7px 12px;border-radius:8px;">
+                <span style="width:10px;height:10px;border-radius:3px;background:#2FA84F;"></span><span style="font-size:11px;color:#fff;">обычные</span>
+                <span style="width:10px;height:10px;border-radius:3px;background:#E4372E;margin-left:6px;"></span><span style="font-size:11px;color:#fff;">тонкие</span>
+                <span style="font-size:11px;color:rgba(255,255,255,.55);margin-left:8px;">колесо — зум · тяни — пан</span>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:13px;">
+              <sc-for list="{{ defSummary }}" as="d" hint-placeholder-count="4">
+                <div style="padding:10px 11px;border-radius:9px;background:{{c.surface2}};border:1px solid {{c.border}};">
+                  <div style="font-size:10.5px;color:{{c.textDim}};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:5px;">{{ d.type }}</div>
+                  <div style="font-size:20px;font-weight:700;font-family:'IBM Plex Mono',monospace;">{{ d.count }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:18px;">
+            <sc-if value="{{ roiStats }}" hint-placeholder-val="{{ false }}">
+              <div style="background:{{c.surface}};border:1px solid {{c.accent}};border-radius:14px;padding:18px;box-shadow:{{c.shadow}};">
+                <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3" stroke="{{c.accent}}" stroke-width="1.8" stroke-linecap="round"/></svg>
+                  <span style="font-size:13px;font-weight:600;">Статистика по выделению</span>
+                  <span style="font-size:11.5px;color:{{c.textDim}};">{{ roiArea }}% кадра</span>
+                  <button onClick="{{ onZoomRoi }}" style="margin-left:auto;height:26px;padding:0 10px;border-radius:7px;border:1px solid {{c.accent}};background:{{c.primaryDim}};color:{{c.primary}};cursor:pointer;font-size:11px;font-weight:600;font-family:inherit;">Приблизить</button>
+                  <button onClick="{{ onClearRoi }}" style="height:26px;padding:0 10px;border-radius:7px;border:1px solid {{c.border}};background:{{c.surface2}};color:{{c.textDim}};cursor:pointer;font-size:11px;font-weight:600;font-family:inherit;">×</button>
+                </div>
+                <sc-for list="{{ roiStats }}" as="r" hint-placeholder-count="5">
+                  <div style="display:flex;align-items:center;gap:9px;margin-bottom:9px;">
+                    <span style="width:10px;height:10px;border-radius:3px;background:{{ r.color }};flex:none;"></span>
+                    <span style="font-size:12px;width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.short }}</span>
+                    <div style="flex:1;height:7px;border-radius:4px;background:{{c.surface2}};overflow:hidden;"><div style="height:100%;width:{{ r.pct }}%;background:{{ r.color }};border-radius:4px;"></div></div>
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;width:48px;text-align:right;">{{ r.pct }}%</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ noRoi }}" hint-placeholder-val="{{ true }}">
+              <div style="background:{{c.surface}};border:1px solid {{c.border}};border-radius:14px;padding:16px;box-shadow:{{c.shadow}};display:flex;align-items:center;gap:12px;">
+                <span style="width:36px;height:36px;border-radius:9px;background:{{c.primaryDim}};display:flex;align-items:center;justify-content:center;flex:none;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3" stroke="{{c.primary}}" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </span>
+                <div style="font-size:12.5px;color:{{c.textDim}};line-height:1.5;"><span style="color:{{c.text}};font-weight:600;">Выделение участка</span> — включите режим «Выделение» над снимком и обведите область, чтобы увидеть локальный состав фаз.</div>
+              </div>
+            </sc-if>
+            <div style="background:{{c.surface}};border:1px solid {{c.border}};border-radius:14px;padding:18px;box-shadow:{{c.shadow}};">
+              <div style="font-size:13px;font-weight:600;margin-bottom:12px;">Список обнаружений · {{ defTotal }}</div>
+              <div style="max-height:240px;overflow-y:auto;">
+                <sc-for list="{{ defList }}" as="d" hint-placeholder-count="10">
+                  <div style="display:flex;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px solid {{c.border}};font-size:12.5px;">
+                    <span style="font-family:'IBM Plex Mono',monospace;color:{{c.textFaint}};width:24px;">#{{ d.i }}</span>
+                    <span style="width:9px;height:9px;border-radius:2px;border:2px solid {{ d.sevColor }};box-sizing:border-box;"></span>
+                    <span style="flex:1;">{{ d.type }}</span>
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:{{c.textFaint}};">{{ d.pos }}</span>
+                    <span style="font-size:11px;font-weight:600;color:{{ d.sevColor }};">{{ d.sevLabel }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- diagnostic report -->
+        <div style="display:flex;align-items:center;gap:10px;margin:6px 0 14px;">
+          <span style="width:4px;height:17px;border-radius:2px;background:{{c.primary}};"></span>
+          <span style="font-size:13px;font-weight:700;letter-spacing:.4px;color:{{c.text}};">Итоговая диагностика</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:24px;">
+          <sc-for list="{{ diagTiles }}" as="t" hint-placeholder-count="6">
+            <div style="background:{{c.surface}};border:1px solid {{c.border}};border-radius:12px;padding:15px 16px;box-shadow:{{c.shadow}};">
+              <div style="font-size:21px;font-weight:700;color:{{ t.accent }};line-height:1.1;margin-bottom:7px;">{{ t.value }}</div>
+              <div style="font-size:11.5px;color:{{c.textDim}};line-height:1.4;">{{ t.label }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px;margin:6px 0 14px;">
+          <span style="width:4px;height:17px;border-radius:2px;background:{{c.primary}};"></span>
+          <span style="font-size:13px;font-weight:700;letter-spacing:.4px;color:{{c.text}};">Текстовый отчёт · полное согласование</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <sc-for list="{{ reportBlocks }}" as="b" hint-placeholder-count="3">
+            <div style="background:{{c.surface}};border:1px solid {{c.border}};border-left:4px solid {{c.primary}};border-radius:12px;padding:18px 20px;box-shadow:{{c.shadow}};">
+              <div style="font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:{{c.primary}};margin-bottom:13px;">{{ b.title }}</div>
+              <sc-for list="{{ b.lines }}" as="ln" hint-placeholder-count="5">
+                <div style="display:flex;gap:8px;margin-bottom:9px;font-size:13px;line-height:1.5;">
+                  <span style="color:{{c.primary}};flex:none;">•</span>
+                  <span style="color:{{c.textDim}};">{{ ln.v }}</span>
+                </div>
+              </sc-for>
+              <sc-if value="{{ b.note }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:12px;font-size:12px;color:{{c.textFaint}};font-style:italic;line-height:1.5;">{{ b.note }}</div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <!-- UPLOAD -->
+      
+          <!-- expert review view (между загрузкой и образцом шлифа) -->
+          <sc-if value="{{ vReview }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:18px;">
+
+            <div style="background:{{c.surface}};border:1px solid {{c.warn}};border-radius:14px;padding:20px;box-shadow:{{c.shadow}};">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.2-2.9 7.4-7 8.5-4.1-1.1-7-4.3-7-8.5V6z" stroke="{{c.warn}}" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9v4M12 16v.5" stroke="{{c.warn}}" stroke-width="1.8" stroke-linecap="round"/></svg>
+                <span style="font-size:14px;font-weight:600;">Очередь экспертной проверки (уверенность < 95%)</span>
+                <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-weight:700;color:{{c.warn}};">{{ reviewCount }}</span>
+              </div>
+              <div style="font-size:12px;color:{{c.textDim}};margin-bottom:12px;">пограничная классификация — подтвердите тип руды или отклоните</div>
+              <sc-for list="{{ reviewList }}" as="r" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 4px;border-top:1px solid {{c.border}};flex-wrap:wrap;">
+                  <span onClick="{{ r.onOpen }}" style="font-family:'IBM Plex Mono',monospace;font-weight:600;color:{{c.primary}};cursor:pointer;width:90px;">{{ r.id }}</span>
+                  <span style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:{{ r.phaseColor }};"><span style="width:9px;height:9px;border-radius:3px;background:{{ r.phaseColor }};"></span>{{ r.phase }}</span>
+                  <span style="font-size:12px;color:{{c.textDim}};">тальк <b style="color:{{ r.talcColor }};">{{ r.talc }}</b></span>
+                  <span style="font-size:12px;color:{{c.textDim}};">уверенность <b style="color:{{c.text}};font-family:'IBM Plex Mono',monospace;">{{ r.conf }}</b></span>
+                  <span style="font-size:11.5px;color:{{c.textFaint}};font-style:italic;">{{ r.reason }}</span>
+                  <span style="margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+                    <sc-for list="{{ r.classOpts }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="filter:brightness(1.06)">{{ o.label }}</button></sc-for>
+                    <button onClick="{{ r.onReject }}" title="Отклонить" style="padding:5px 10px;border-radius:7px;border:1px solid {{c.bad}};background:{{c.surface2}};color:{{c.bad}};cursor:pointer;font-size:11px;font-weight:600;font-family:inherit;" style-hover="background:{{c.bad}};color:#fff">✕</button>
+                  </span>
+                </div>
+              </sc-for>
+            </div>
+          
+            <sc-if value="{{ reviewEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="background:{{c.surface}};border:1px solid {{c.border}};border-radius:14px;padding:40px 20px;box-shadow:{{c.shadow}};text-align:center;color:{{c.textDim}};font-size:13px;">Нет образцов, ожидающих проверки — дождитесь окончания обработки очереди или загрузите новые снимки.</div>
+            </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ vUpload }}" hint-placeholder-val="{{ false }}">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+          <div style="background:{{c.surface}};border:1px solid {{c.border}};border-radius:14px;padding:24px;box-shadow:{{c.shadow}};">
+            <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Загрузка шлифов</div>
+            <div style="font-size:12.5px;color:{{c.textDim}};margin-bottom:16px;">Панорамные OM-снимки полированных шлифов · модель классифицирует руду</div>
+            <label onDrop="{{ onDropFiles }}" onDragOver="{{ onDragOverUp }}" style="display:block;border:2px dashed {{c.borderHi}};border-radius:14px;padding:34px 24px;text-align:center;background:{{c.surface2}};cursor:pointer;" style-hover="border-color:{{c.primary}}">
+              <input type="file" multiple accept="image/*,.tif,.tiff,.png,.jpg,.jpeg" onChange="{{ onFilesPicked }}" style="display:none;"/>
+              <div style="width:54px;height:54px;border-radius:14px;background:{{c.primaryDim}};display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 16V4M7 9l5-5 5 5M5 16v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" stroke="{{c.primary}}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div style="font-size:15px;font-weight:600;margin-bottom:6px;">Выберите или перетащите снимки шлифов</div>
+              <div style="font-size:12.5px;color:{{c.textDim}};">TIFF · PNG · JPEG · до 200 МБ на файл</div>
+              <div style="display:flex;gap:8px;justify-content:center;margin-top:14px;">
+                <sc-for list="{{ modKinds }}" as="m" hint-placeholder-count="2"><span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:5px 11px;border-radius:7px;background:{{c.surface}};border:1px solid {{ m.color }};color:{{ m.color }};"><span style="width:8px;height:8px;border-radius:2px;background:{{ m.color }};"></span>{{ m.mod }}</span></sc-for>
+              </div>
+            </label>
+            <div style="margin-top:18px;border:1px solid {{c.border}};border-radius:12px;padding:16px;">
+              <div style="font-size:12.5px;font-weight:600;margin-bottom:4px;">Привязка к образцу</div>
+              <div style="font-size:11.5px;color:{{c.textDim}};margin-bottom:13px;">Выберите партию и образец или создайте новые</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div>
+                  <div style="font-size:10.5px;color:{{c.textDim}};font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Партия</div>
+                  <select value="{{ upBatch }}" onChange="{{ onUpBatch }}" style="width:100%;padding:9px 11px;border-radius:9px;border:1px solid {{c.border}};background:{{c.surface2}};color:{{c.text}};font-family:inherit;font-size:13px;outline:none;cursor:pointer;">
+                    <sc-for list="{{ batchOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o.id }}">{{ o.label }}</option></sc-for>
+                    <option value="__new">➕ Новая партия</option>
+                  </select>
+                  <sc-if value="{{ showBatchNew }}" hint-placeholder-val="{{ false }}">
+                    <input value="{{ upBatchNew }}" onInput="{{ onUpBatchNew }}" placeholder="ID партии, напр. B-43" style="width:100%;margin-top:8px;padding:9px 11px;border-radius:9px;border:1px solid {{c.borderHi}};background:{{c.surface}};color:{{c.text}};font-family:'IBM Plex Mono',monospace;font-size:13px;outline:none;"/>
+                  </sc-if>
+                </div>
+                <div>
+                  <div style="font-size:10.5px;color:{{c.textDim}};font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Образец</div>
+                  <select value="{{ upSample }}" onChange="{{ onUpSample }}" style="width:100%;padding:9px 11px;border-radius:9px;border:1px solid {{c.border}};background:{{c.surface2}};color:{{c.text}};font-family:inherit;font-size:13px;outline:none;cursor:pointer;">
+                    <sc-for list="{{ sampleOptionsUp }}" as="o" hint-placeholder-count="3"><option value="{{ o.id }}">{{ o.id }}</option></sc-for>
+                    <option value="__new">➕ Новый образец</option>
+                  </select>
+                  <sc-if value="{{ showSampleNew }}" hint-placeholder-val="{{ true }}">
+                    <input value="{{ upSampleNew }}" onInput="{{ onUpSampleNew }}" placeholder="ID образца, напр. NN-4173" style="width:100%;margin-top:8px;padding:9px 11px;border-radius:9px;border:1px solid {{c.borderHi}};background:{{c.surface}};color:{{c.text}};font-family:'IBM Plex Mono',monospace;font-size:13px;outline:none;"/>
+                  </sc-if>
+                </div>
+              </div>
+              <div style="margin-top:12px;">
+                <div style="font-size:10.5px;color:{{c.textDim}};font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Масштаб, мкм/пиксель <span style="text-transform:none;font-weight:400;">(опционально — для площадей в мм²)</span></div>
+                <input type="number" step="0.01" min="0" value="{{ upScaleVal }}" onInput="{{ onUpScale }}" placeholder="напр. 0.5" style="width:100%;padding:9px 11px;border-radius:9px;border:1px solid {{c.border}};background:{{c.surface2}};color:{{c.text}};font-family:'IBM Plex Mono',monospace;font-size:13px;outline:none;"/>
+              </div>
+              <sc-if value="{{ uploadEmpty }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:14px;padding:14px;text-align:center;font-size:12px;color:{{c.textFaint}};border:1px dashed {{c.border}};border-radius:10px;">Файлы не выбраны</div>
+              </sc-if>
+              <sc-if value="{{ uploadFiles }}" hint-placeholder-val="{{ true }}">
+                <div style="margin-top:14px;border:1px solid {{c.border}};border-radius:10px;overflow:hidden;">
+                  <sc-for list="{{ uploadFiles }}" as="f" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:center;gap:11px;padding:10px 13px;border-bottom:1px solid {{c.border}};">
+                      <span style="width:34px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;background:{{ f.color }};flex:none;">{{ f.mod }}</span>
+                      <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ f.name }}</span>
+                      <span style="font-size:11.5px;color:{{c.textDim}};font-family:'IBM Plex Mono',monospace;">{{ f.size }}</span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5" stroke="{{c.ok}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <div style="margin-top:14px;display:flex;gap:10px;align-items:center;">
+                <button onClick="{{ onRunUpload }}" style="flex:1;padding:12px;border-radius:9px;border:none;background:{{c.primary}};color:#fff;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;">Загрузить и классифицировать</button>
+                <span style="font-size:11.5px;color:{{c.textDim}};">OM · авто</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:18px;">
+            <div style="background:{{c.surface}};border:1px solid {{c.border}};border-radius:14px;padding:24px;box-shadow:{{c.shadow}};flex:1;min-height:0;">
+              <div style="font-size:14px;font-weight:600;margin-bottom:14px;">Очередь обработки</div>
+              <sc-for list="{{ queue }}" as="q" hint-placeholder-count="4">
+                <div style="padding:13px 0;border-bottom:1px solid {{c.border}};">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-weight:600;color:{{c.primary}};">{{ q.id }}</span>
+                    <span style="display:flex;gap:4px;">
+                      <sc-for list="{{ q.modChips }}" as="mc" hint-placeholder-count="3"><span style="font-size:9.5px;font-weight:700;color:#fff;background:{{ mc.color }};padding:2px 5px;border-radius:4px;">{{ mc.m }}</span></sc-for>
+                    </span>
+                    <span style="margin-left:auto;font-size:12px;color:{{c.textDim}};">{{ q.stage }}</span>
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;width:42px;text-align:right;">{{ q.pct }}%</span>
+                    <span onClick="{{ q.onDelete }}" title="Удалить образец" style="cursor:pointer;color:{{c.textDim}};font-size:17px;line-height:1;padding:0 2px;user-select:none;" style-hover="color:{{c.bad}}">×</span>
+                  </div>
+                  <div style="height:7px;border-radius:5px;background:{{c.surface2}};overflow:hidden;position:relative;">
+                    <div style="height:100%;width:{{ q.pct }}%;background:{{ q.barColor }};border-radius:5px;transition:width .4s;"></div>
+                    <sc-if value="{{ q.active }}" hint-placeholder-val="{{ false }}">
+                      <div style="position:absolute;top:0;left:0;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);animation:shimmer 1.4s infinite;"></div>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-for>
+              <sc-if value="{{ queueEmpty }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:28px 12px;text-align:center;font-size:12.5px;color:{{c.textDim}};">Очередь пуста</div>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+  </main>
+
+  <!-- FULLSCREEN VIEWER -->
+  <sc-if value="{{ fsOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:90;background:rgba(7,18,31,.9);display:flex;flex-direction:column;padding:22px 26px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <span style="color:#fff;font-size:15px;font-weight:600;">{{ fsTitle }}</span>
+        <span style="color:rgba(255,255,255,.6);font-size:12.5px;">{{ fsHint }}</span>
+        <button onClick="{{ onCloseFs }}" style="margin-left:auto;display:flex;align-items:center;gap:8px;padding:9px 15px;border-radius:9px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:600;" style-hover="background:rgba(255,255,255,.16)">Закрыть ✕</button>
+      </div>
+      <div ref="{{ fsWrapRef }}" style="flex:1;position:relative;border-radius:12px;overflow:hidden;background:#000;cursor:{{ fsCursor }};min-height:0;">
+        <canvas ref="{{ fsRef }}" onMouseDown="{{ onFsDown }}" onMouseMove="{{ onFsMove }}" onMouseUp="{{ onFsUp }}" onMouseLeave="{{ onFsUp }}" style="width:100%;height:100%;display:block;touch-action:none;"></canvas>
+        <sc-if value="{{ fsXsel }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;left:{{ fsXsel.l }}px;top:{{ fsXsel.t }}px;width:{{ fsXsel.w }}px;height:{{ fsXsel.h }}px;background:{{c.accent}}22;border:1.5px dashed {{c.accent}};border-radius:3px;pointer-events:none;"></div>
+        </sc-if>
+      </div>
+      <sc-if value="{{ fsIsSem }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:12px;margin-top:14px;max-width:760px;width:100%;align-self:center;">
+          <span style="font-size:11.5px;color:rgba(255,255,255,.7);white-space:nowrap;">оригинал</span>
+          <input type="range" min="0" max="100" value="{{ sliderVal }}" onInput="{{ onSlider }}" style="flex:1;height:6px;border-radius:4px;background:linear-gradient(90deg,rgba(255,255,255,.4),{{c.accent}});cursor:ew-resize;"/>
+          <span style="font-size:11.5px;color:{{c.accent}};white-space:nowrap;font-weight:600;">сегментация</span>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;100%&quot;}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    this.semCanvas=React.createRef();
+    this.defCanvas=React.createRef();
+    this.xrdCanvas=React.createRef();
+    this.thumbCanvas=React.createRef();
+    this.fsCanvas=React.createRef();
+    this.semWrap=React.createRef();
+    this.xrdWrap=React.createRef();
+    this.fsWrap=React.createRef();
+    this.samplesList=['NN-4127','NN-4131','NN-4140','NN-4156','NN-4163','NN-4170','NN-4181','NN-4192'];
+    this.batchList=[
+      {id:'B-42',label:'B-42',sub:'сегодня'},
+      {id:'B-41',label:'B-41',sub:'вчера'},
+      {id:'B-40',label:'B-40',sub:'2 дня назад'},
+      {id:'B-39',label:'B-39',sub:'3 дня назад'}
+    ];
+    this._batchCache={};
+    this.state={
+      theme:'light', view:'overview', batch:'B-42', sample:this.getBatch('B-42').rows[0].id,
+      sampleOpen:false, sampleQuery:'', batchOpen:false, batchQuery:'',
+      upBatch:'B-42', upSample:'__new', upBatchNew:'', upSampleNew:'NN-4173',
+      maskLayers:{alpha:false,beta:false,gamma:false,delta:true,pore:true,defects:true},
+      selectedPhase:null, slider:55, zoom:1, panX:0, panY:0,
+      uncOn:false, defZoom:1, defPanX:0, defPanY:0,
+      imgMode:'sem', analysisMode:'pan', roi:null,
+      hoverPeak:null, mx:0, my:0, xrdPhase:null, trendHover:null, heatOn:false,
+      xrdX0:20, xrdX1:90, xrdScale:'lin', xrdYLo:0, xrdYHi:1, xsel:null,
+      fsView:null
+    };
+    this.phases=[
+      {key:'alpha',name:'α-матрица (Ni–Fe)',short:'α',color:'#15538F',rgb:[21,83,143],w:0.46,cryst:'ГЦК твёрдый раствор',sg:'Fm-3m',match:96},
+      {key:'beta', name:'γ′-фаза (Ni₃Al)',short:'γ′',color:'#2E86C8',rgb:[46,134,200],w:0.27,cryst:'L1₂ (упорядоч.)',sg:'Pm-3m',match:91},
+      {key:'gamma',name:'Карбиды M₂₃C₆',short:'M₂₃C₆',color:'#66ABDC',rgb:[102,171,220],w:0.14,cryst:'ГЦК карбид',sg:'Fm-3m',match:88},
+      {key:'delta',name:'Сульфиды (пентландит)',short:'S',color:'#9DBBD4',rgb:[157,187,212],w:0.09,cryst:'(Ni,Fe)₉S₈',sg:'Fm-3m',match:74},
+      {key:'pore', name:'Поры',short:'поры',color:'#D98A3D',rgb:[217,138,61],w:0.04,cryst:'—',sg:'—',match:0}
+    ];
+    this.idx2key=this.phases.map(p=>p.key);
+    this.peaks=[
+      {tt:25.1,i:0.12,ph:'beta',hkl:'(100)'},{tt:31.0,i:0.17,ph:'delta',hkl:'(111)'},
+      {tt:33.8,i:0.21,ph:'delta',hkl:'(200)'},{tt:36.2,i:0.30,ph:'gamma',hkl:'(311)'},
+      {tt:42.1,i:0.40,ph:'gamma',hkl:'(422)'},{tt:43.9,i:0.55,ph:'beta',hkl:'(111)'},
+      {tt:44.6,i:1.00,ph:'alpha',hkl:'(111)'},{tt:47.0,i:0.19,ph:'gamma',hkl:'(511)'},
+      {tt:50.9,i:0.31,ph:'beta',hkl:'(200)'},{tt:51.9,i:0.47,ph:'alpha',hkl:'(200)'},
+      {tt:61.4,i:0.14,ph:'gamma',hkl:'(731)'},{tt:74.8,i:0.16,ph:'beta',hkl:'(220)'},
+      {tt:76.5,i:0.26,ph:'alpha',hkl:'(220)'}
+    ];
+    let r=this.mul(99);
+    this.batches=Array.from({length:12},(_,i)=>{
+      const acc=Math.min(0.985,0.9+0.05*Math.sin(i/2.2)+(r()-0.5)*0.016);
+      const real=Math.max(0.81,acc-0.018-0.03*r());
+      return {label:'B'+(31+i), acc, real};
+    });
+    this.recent=[
+      {id:'NN-4127',mods:['SEM','OM','XRD'],phase:'α-матрица',def:3,crit:0,agree:96,conf:0.96,status:'Готово'},
+      {id:'NN-4131',mods:['OM','XRD'],phase:'α / карбиды',def:1,crit:0,agree:95,conf:0.94,status:'Готово'},
+      {id:'NN-4140',mods:['SEM','XRD'],phase:'γ′ / сульфиды',def:7,crit:2,agree:86,conf:0.88,status:'Проверка'},
+      {id:'NN-4156',mods:['SEM','OM','XRD'],phase:'α-матрица',def:2,crit:0,agree:97,conf:0.97,status:'Готово'},
+      {id:'NN-4163',mods:['OM','XRD'],phase:'γ′ / поры',def:5,crit:1,agree:89,conf:0.90,status:'Проверка'},
+      {id:'NN-4170',mods:['SEM','OM','XRD'],phase:'α / γ′',def:4,crit:1,agree:92,conf:0.92,status:'Обработка'},
+      {id:'NN-4181',mods:['SEM','XRD'],phase:'α-матрица',def:2,crit:0,agree:94,conf:0.95,status:'Готово'},
+      {id:'NN-4192',mods:['SEM','OM'],phase:'γ′ / карбиды',def:6,crit:1,agree:88,conf:0.89,status:'Обработка'}
+    ];
+    this.queue=[];  // populated from real samples in loadReal()
+    this.uploadFiles=[
+      {name:'NN-4173_SEM_x2000.tif',mod:'SEM',size:'18.4 МБ'},
+      {name:'NN-4173_OM_bright.tif',mod:'OM',size:'9.1 МБ'},
+      {name:'NN-4173_scan.xrdml',mod:'XRD',size:'1.2 МБ'}
+    ];
+    this.modColor={SEM:'#2E8FE0',OM:'#3FA9C9',XRD:'#7C9CC4'};
+    this.metrics=[
+      {task:'Сегментация срастаний (mIoU)',sim:0.91,real:0.87},
+      {task:'Классификация руды (F1)',sim:0.96,real:0.93},
+      {task:'Доля талька (1–MAE)',sim:0.96,real:0.92},
+      {task:'Детекция тонких срастаний (AP)',sim:0.89,real:0.84}
+    ];
+    this.confidence=0.942;
+  }
+  mul(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  seedOf(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+  getBatch(id){ if(!this._batchCache) this._batchCache={}; if(!this._batchCache[id]) this._batchCache[id]=this.genBatch(id); return this._batchCache[id]; }
+  genBatch(id){
+    const rng=this.mul(this.seedOf(id)^0x9e37);
+    const n=6+((rng()*4)|0);
+    const phaseNames=['α-матрица','α / γ′','γ′ / сульфиды','γ′ / карбиды','α / карбиды','γ′ / поры'];
+    const modSets=[['SEM','OM','XRD'],['SEM','XRD'],['OM','XRD'],['SEM','OM']];
+    const base=4100+(this.seedOf(id)%70);
+    const rows=[];
+    for(let i=0;i<n;i++){
+      const def=(rng()*8)|0; const crit=def>=5?1+((rng()*2)|0):0;
+      const agree=84+Math.round(rng()*14);
+      const conf=0.85+rng()*0.13;
+      const status=agree<90?'Проверка':(rng()<0.28?'Обработка':'Готово');
+      rows.push({id:'NN-'+(base+i*5),mods:modSets[(rng()*modSets.length)|0],phase:phaseNames[(rng()*phaseNames.length)|0],def,crit,agree,conf,status});
+    }
+    let w=[0.45,0.28,0.14,0.09,0.04].map(v=>Math.max(0.01,v*(1+(rng()-0.5)*0.4)));
+    const ws=w.reduce((a,b)=>a+b,0); w=w.map(v=>v/ws);
+    return {rows,weights:w};
+  }
+
+  generateMicro(){
+    const N=this.N=460, seeds=118;
+    const rng=this.mul(this.seedOf(this.state.sample));
+    const sx=[],sy=[],sp=[];
+    let cum=[],c=0; this.phases.forEach(p=>{c+=p.w;cum.push(c);});
+    for(let k=0;k<seeds;k++){
+      sx.push(rng()*N); sy.push(rng()*N);
+      const t=rng()*cum[cum.length-1]; let pi=0; while(pi<cum.length-1&&t>cum[pi])pi++; sp.push(pi);
+    }
+    const pa=new Uint8Array(N*N), bnd=new Uint8Array(N*N);
+    const counts=new Float64Array(5);
+    for(let y=0;y<N;y++){
+      for(let x=0;x<N;x++){
+        let d1=1e12,d2=1e12,bi=0;
+        for(let k=0;k<seeds;k++){const dx=x-sx[k],dy=y-sy[k],dd=dx*dx+dy*dy;if(dd<d1){d2=d1;d1=dd;bi=k;}else if(dd<d2){d2=dd;}}
+        const idx=y*N+x; pa[idx]=sp[bi]; counts[sp[bi]]++;
+        if(Math.sqrt(d2)-Math.sqrt(d1)<1.4) bnd[idx]=1;
+      }
+    }
+    for(let c2=0;c2<5;c2++){
+      const cxp=rng()*N,cyp=rng()*N,rad=4+rng()*7;
+      for(let y=Math.max(0,cyp-rad);y<Math.min(N,cyp+rad);y++)for(let x=Math.max(0,cxp-rad);x<Math.min(N,cxp+rad);x++){
+        if((x-cxp)**2+(y-cyp)**2<rad*rad){const id=(y|0)*N+(x|0);counts[pa[id]]--;pa[id]=4;counts[4]++;}
+      }
+    }
+    const tot=N*N; this.fractions=Array.from(counts,v=>v/tot);
+    this.pa=pa; this.bnd=bnd;
+    const types=['Микротрещина','Включение','Скопление пор','Расслоение'];
+    this.defects=[]; const nd=14;
+    for(let i=0;i<nd;i++){
+      const dx=0.09+rng()*0.82, dy=0.09+rng()*0.82, rad=0.022+rng()*0.05, sev=1+((rng()*3)|0);
+      const nv=7+((rng()*4)|0); const pts=[];
+      for(let v=0;v<nv;v++){const ang=v/nv*Math.PI*2; const rr=rad*(0.55+rng()*0.9);
+        pts.push({x:dx+Math.cos(ang)*rr, y:dy+Math.sin(ang)*rr*(0.78+rng()*0.42)});}
+      this.defects.push({x:dx,y:dy,type:types[(rng()*types.length)|0],sev,r:rad,pts});
+    }
+    this.confSample=0.70+(this.seedOf(this.state.sample)%230)/1000;
+    this._realOre=null;
+    this.renderRaw(); this.renderSeg();
+    if(this._realLoaded) this.applyReal(this.state.sample);
+  }
+  renderRaw(){
+    const N=this.N; const cv=this.rawCv=document.createElement('canvas'); cv.width=cv.height=N;
+    const ctx=cv.getContext('2d'); const img=ctx.createImageData(N,N); const d=img.data;
+    const bright=[150,118,196,92,46]; const rng=this.mul(7);
+    for(let i=0;i<N*N;i++){
+      let v=bright[this.pa[i]]+(rng()-0.5)*26; if(this.bnd[i])v*=0.42; v=Math.max(8,Math.min(244,v));
+      const j=i*4; d[j]=v; d[j+1]=v; d[j+2]=v*1.02; d[j+3]=255;
+    }
+    ctx.putImageData(img,0,0);
+  }
+  renderSeg(){
+    const N=this.N; const cv=this.segCv=this.segCv||document.createElement('canvas'); cv.width=cv.height=N;
+    const ctx=cv.getContext('2d'); const img=ctx.createImageData(N,N); const d=img.data;
+    const sel=this.state.selectedPhase; const ml=this.state.maskLayers;
+    for(let i=0;i<N*N;i++){
+      const p=this.pa[i]; const key=this.idx2key[p]; const j=i*4;
+      if(!ml[key]){d[j+3]=0;continue;}
+      let[rr,gg,bb]=this.phases[p].rgb; let a=255;
+      if(sel&&key!==sel){const g=(rr+gg+bb)/3;rr=g*0.55+rr*0.18;gg=g*0.55+gg*0.18;bb=g*0.55+bb*0.18;a=120;}
+      if(this.bnd[i]){rr*=0.35;gg*=0.35;bb*=0.35;}
+      d[j]=rr;d[j+1]=gg;d[j+2]=bb;d[j+3]=a;
+    }
+    ctx.putImageData(img,0,0);
+  }
+  ensureMicro(){ if(!this.rawCv) this.generateMicro(); }
+  fit(cv){
+    const dpr=window.devicePixelRatio||1;
+    const W=Math.max(1,cv.clientWidth||cv.parentElement.clientWidth);
+    const H=Math.max(1,cv.clientHeight||cv.parentElement.clientHeight);
+    if(W<2||H<2)return null;
+    cv.width=W*dpr;cv.height=H*dpr;
+    const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return{ctx,W,H};
+  }
+  sevCol(sev){return sev>=3?'#E4372E':'#2FA84F';}
+  polyPath(ctx,pts,ox,oy,size){ctx.beginPath();pts.forEach((p,i)=>{const X=ox+p.x*size,Y=oy+p.y*size;i?ctx.lineTo(X,Y):ctx.moveTo(X,Y);});ctx.closePath();}
+  drawSem(arg){
+    const cv=arg||this.semCanvas.current; if(!cv)return; this.ensureMicro();
+    if(this._ro)try{this._ro.observe(cv);}catch(e){}
+    const f=this.fit(cv); if(!f)return; const{ctx,W,H}=f; ctx.clearRect(0,0,W,H);
+    const base=Math.min(W,H)*0.96, size=base*this.state.zoom;
+    const ox=(W-size)/2+this.state.panX, oy=(H-size)/2+this.state.panY;
+    this._semTf={ox,oy,size,W,H,base};
+    ctx.imageSmoothingEnabled=true;
+    ctx.save();
+    if(this.state.imgMode==='om'){ctx.filter='sepia(0.32) brightness(1.06) contrast(0.92) blur(0.5px)';}
+    ctx.drawImage(this.rawCv,ox,oy,size,size);
+    ctx.restore();
+    const sx=W*this.state.slider/100;
+    const anyPhase=this.idx2key.some(k=>this.state.maskLayers[k]);
+    if(this.state.uncOn&&this.uncCv){ctx.save();ctx.beginPath();ctx.rect(sx,0,W-sx,H);ctx.clip();ctx.globalAlpha=0.85;ctx.drawImage(this.uncCv,ox,oy,size,size);ctx.globalAlpha=1;ctx.restore();}
+    else if(anyPhase){ctx.save();ctx.beginPath();ctx.rect(sx,0,W-sx,H);ctx.clip();ctx.globalAlpha=0.72;ctx.drawImage(this.segCv,ox,oy,size,size);ctx.globalAlpha=1;ctx.restore();}
+    if(this.state.roi){
+      const r=this.state.roi; const rx=ox+Math.min(r.x0,r.x1)*size, ry=oy+Math.min(r.y0,r.y1)*size;
+      const rw=Math.abs(r.x1-r.x0)*size, rh=Math.abs(r.y1-r.y0)*size;
+      const c=this.pal();
+      ctx.save();
+      ctx.fillStyle='rgba(0,0,0,0.34)';ctx.beginPath();ctx.rect(0,0,W,H);ctx.rect(rx,ry,rw,rh);ctx.fill('evenodd');
+      ctx.strokeStyle=c.accent;ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.strokeRect(rx,ry,rw,rh);ctx.setLineDash([]);
+      ctx.fillStyle=c.accent;[[rx,ry],[rx+rw,ry],[rx,ry+rh],[rx+rw,ry+rh]].forEach(([hx,hy])=>{ctx.fillRect(hx-3,hy-3,6,6);});
+      ctx.restore();
+    }
+    const c=this.pal(); ctx.strokeStyle=c.accent;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(sx,0);ctx.lineTo(sx,H);ctx.stroke();
+    ctx.save();ctx.shadowColor='rgba(0,0,0,.4)';ctx.shadowBlur=6;ctx.fillStyle=c.accent;ctx.beginPath();ctx.arc(sx,H/2,13,0,7);ctx.fill();ctx.restore();
+    ctx.fillStyle='#fff';
+    ctx.beginPath();ctx.moveTo(sx-5,H/2-4);ctx.lineTo(sx-9,H/2);ctx.lineTo(sx-5,H/2+4);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(sx+5,H/2-4);ctx.lineTo(sx+9,H/2);ctx.lineTo(sx+5,H/2+4);ctx.closePath();ctx.fill();
+  }
+  drawThumb(){
+    const cv=this.thumbCanvas.current; if(!cv)return; this.ensureMicro();
+    if(this._ro)try{this._ro.observe(cv);}catch(e){}
+    const f=this.fit(cv); if(!f)return; const{ctx,W,H}=f; ctx.clearRect(0,0,W,H);
+    const s=Math.min(W,H); const ox=(W-s)/2,oy=(H-s)/2;
+    ctx.drawImage(this.rawCv,ox,oy,s,s);
+    ctx.globalAlpha=0.55;ctx.drawImage(this.segCv,ox+s*0.5,oy,s*0.5,s,s*0.5,0,this.N*0.5,this.N);ctx.globalAlpha=1;
+    const c=this.pal();ctx.strokeStyle=c.accent;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ox+s*0.5,oy);ctx.lineTo(ox+s*0.5,oy+s);ctx.stroke();
+  }
+  drawDef(arg){
+    const cv=arg||this.defCanvas.current; if(!cv)return; this.ensureMicro();
+    if(this._ro)try{this._ro.observe(cv);}catch(e){}
+    const f=this.fit(cv); if(!f)return; const{ctx,W,H}=f; ctx.clearRect(0,0,W,H);
+    const s=Math.min(W,H)*0.98*(this.state.defZoom||1); const ox=(W-s)/2+(this.state.defPanX||0),oy=(H-s)/2+(this.state.defPanY||0);
+    ctx.save();ctx.globalAlpha=this.state.heatOn?0.5:1;ctx.drawImage(this.rawCv,ox,oy,s,s);ctx.restore();
+    if(this.state.heatOn){
+      ctx.save();ctx.globalCompositeOperation='lighter';
+      this.defects.forEach(df=>{
+        const cx=ox+df.x*s,cy=oy+df.y*s,rad=(0.05+df.sev*0.035)*s;
+        const g=ctx.createRadialGradient(cx,cy,0,cx,cy,rad);
+        const col=df.sev>=3?[228,55,46]:[47,168,79];
+        g.addColorStop(0,`rgba(${col[0]},${col[1]},${col[2]},0.85)`);g.addColorStop(1,`rgba(${col[0]},${col[1]},${col[2]},0)`);
+        ctx.fillStyle=g;ctx.beginPath();ctx.arc(cx,cy,rad,0,7);ctx.fill();
+      });
+      ctx.restore();
+    } else {
+      this.defects.forEach(df=>{
+        const col=this.sevCol(df.sev);
+        this.polyPath(ctx,df.pts,ox,oy,s);
+        ctx.globalAlpha=0.16;ctx.fillStyle=col;ctx.fill();ctx.globalAlpha=1;
+        ctx.strokeStyle=col;ctx.lineWidth=2.4;ctx.lineJoin='round';ctx.stroke();
+        ctx.fillStyle=col;ctx.font='600 11px "IBM Plex Mono",monospace';ctx.textAlign='center';
+        ctx.fillText('#'+(this.defects.indexOf(df)+1), ox+df.x*s, oy+df.y*s-df.r*s-6);
+      });
+    }
+  }
+  xrdScaleFn(v){const sc=this.state.xrdScale;return sc==='log'?Math.log10(v+0.03):sc==='sqrt'?Math.sqrt(v):v;}
+  xrdVal(tt){
+    const rx=this._realXrd;
+    if(rx&&rx.two_theta&&rx.two_theta.length){
+      const a=rx.two_theta,b=rx.intensity,m=this._realXrdMax||1;
+      if(tt<=a[0])return Math.max(0,b[0]/m);
+      if(tt>=a[a.length-1])return Math.max(0,b[b.length-1]/m);
+      let lo=0,hi=a.length-1;while(hi-lo>1){const mid=(lo+hi)>>1;if(a[mid]<tt)lo=mid;else hi=mid;}
+      const t=(tt-a[lo])/((a[hi]-a[lo])||1);return Math.max(0,(b[lo]+(b[hi]-b[lo])*t)/m);
+    }
+    let v=0.05+0.10*Math.exp(-(((tt-30)/16)**2));for(const pk of this.peaks){const w=0.42;v+=pk.i*1/(1+((tt-pk.tt)/w)**2);}return v;
+  }
+  drawXrd(arg){
+    const cv=arg||this.xrdCanvas.current; if(!cv)return; this.ensureMicro();
+    if(this._ro)try{this._ro.observe(cv);}catch(e){}
+    const f=this.fit(cv); if(!f)return; const{ctx,W,H}=f; ctx.clearRect(0,0,W,H);
+    const c=this.pal(); const pl=46,pr=14,pt=14,pb=30; const pw=W-pl-pr,ph=H-pt-pb;
+    const x0=this.state.xrdX0,x1=this.state.xrdX1;
+    let fullMax=1e-6; for(let tt=20;tt<=90;tt+=0.5){const v=this.xrdScaleFn(this.xrdVal(tt));if(v>fullMax)fullMax=v;}
+    const dispMin=fullMax*this.state.xrdYLo, dispMax=fullMax*this.state.xrdYHi||fullMax;
+    this._xrdTf={pl,pr,pw,pt,ph,x0,x1,fullMax,dispMin,dispMax};
+    const mapx=tt=>pl+(tt-x0)/(x1-x0)*pw;
+    const mapy=v=>pt+ph*(1-(v-dispMin)/(dispMax-dispMin));
+    const n=Math.max(260,pw|0); const ys=[];
+    for(let i=0;i<=n;i++){const tt=x0+(x1-x0)*i/n;ys.push(this.xrdScaleFn(this.xrdVal(tt)));}
+    const range=x1-x0; const step=range>50?10:range>22?5:range>10?2:1;
+    ctx.strokeStyle=c.grid;ctx.lineWidth=1;ctx.fillStyle=c.textFaint;ctx.font='11px "IBM Plex Mono",monospace';ctx.textAlign='center';
+    const startT=Math.ceil(x0/step)*step;
+    for(let tt=startT;tt<=x1;tt+=step){const x=mapx(tt);ctx.beginPath();ctx.moveTo(x,pt);ctx.lineTo(x,pt+ph);ctx.stroke();ctx.fillText(tt+'°',x,H-10);}
+    for(let g=0;g<=4;g++){const y=pt+ph*g/4;ctx.strokeStyle=c.grid;ctx.beginPath();ctx.moveTo(pl,y);ctx.lineTo(W-pr,y);ctx.stroke();}
+    ctx.save();ctx.translate(13,pt+ph/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillStyle=c.textDim;ctx.font='10.5px "IBM Plex Sans",sans-serif';ctx.fillText('I, отн.ед. ('+this.state.xrdScale+')',0,0);ctx.restore();
+    ctx.save();ctx.beginPath();ctx.rect(pl,pt,pw,ph);ctx.clip();
+    ctx.beginPath();ctx.moveTo(mapx(x0),mapy(ys[0]));
+    for(let i=1;i<=n;i++)ctx.lineTo(mapx(x0+(x1-x0)*i/n),mapy(ys[i]));
+    ctx.lineTo(mapx(x1),pt+ph);ctx.lineTo(mapx(x0),pt+ph);ctx.closePath();
+    const grad=ctx.createLinearGradient(0,pt,0,pt+ph);grad.addColorStop(0,c.accent+'55');grad.addColorStop(1,c.accent+'05');ctx.fillStyle=grad;ctx.fill();
+    ctx.beginPath();ctx.moveTo(mapx(x0),mapy(ys[0]));
+    for(let i=1;i<=n;i++)ctx.lineTo(mapx(x0+(x1-x0)*i/n),mapy(ys[i]));
+    ctx.strokeStyle=c.accent;ctx.lineWidth=2;ctx.lineJoin='round';ctx.stroke();
+    const phcol={};this.phases.forEach(p=>phcol[p.key]=p.color);
+    this.peaks.forEach(pk=>{
+      if(pk.tt<x0-1||pk.tt>x1+1)return;
+      const x=mapx(pk.tt),y=mapy(this.xrdScaleFn(this.xrdVal(pk.tt)));
+      if(y>pt+ph+10)return;
+      const hi=this.state.xrdPhase===pk.ph; const hov=this.state.hoverPeak&&this.state.hoverPeak.tt===pk.tt;
+      if(hi||hov){ctx.strokeStyle=phcol[pk.ph]+'aa';ctx.lineWidth=hov?2:1.4;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(x,Math.max(pt,y-4));ctx.lineTo(x,pt+ph);ctx.stroke();ctx.setLineDash([]);}
+      const ty=Math.max(pt+8,y-7);
+      ctx.fillStyle=phcol[pk.ph];ctx.beginPath();ctx.moveTo(x,ty);ctx.lineTo(x-4,ty-7);ctx.lineTo(x+4,ty-7);ctx.closePath();
+      ctx.globalAlpha=(this.state.xrdPhase&&!hi)?0.28:1;ctx.fill();ctx.globalAlpha=1;
+    });
+    ctx.restore();
+  }
+  drawFs(){const v=this.state.fsView;if(!v)return;const cv=this.fsCanvas.current;if(!cv)return;if(v==='sem')this.drawSem(cv);else if(v==='def')this.drawDef(cv);else if(v==='xrd')this.drawXrd(cv);}
+  redraw(){const v=this.state.view;if(v==='analysis'){this.drawSem();this.drawXrd();this.drawDef();}else if(v==='overview')this.drawThumb();if(this.state.fsView)this.drawFs();}
+  scheduleRedraw(){requestAnimationFrame(()=>this.redraw());[40,150,340].forEach(t=>setTimeout(()=>this.redraw(),t));}
+  observeCurrent(){if(!this._ro)return;[this.semCanvas,this.xrdCanvas,this.defCanvas,this.thumbCanvas,this.fsCanvas].forEach(r=>{const el=r.current;if(el&&el.clientWidth>2){try{this._ro.observe(el);}catch(e){}}});}
+  attachWheel(){
+    const bind=(cv,fn)=>{if(!cv||cv._wheelBound)return;cv._wheelBound=true;cv.addEventListener('wheel',ev=>{ev.preventDefault();ev.stopPropagation();fn(ev);},{passive:false});};
+    bind(this.semCanvas.current,e=>this.semWheel(e));
+    bind(this.defCanvas.current,e=>this.defWheel(e));
+    bind(this.xrdCanvas.current,e=>this.xrdWheel(e));
+    bind(this.fsCanvas.current,e=>{this.state.fsView==='xrd'?this.xrdWheel(e):this.semWheel(e);});
+  }
+  componentDidMount(){
+    this.generateMicro();
+    this.loadReal();
+    const s=this.state;this._prev={view:s.view,sample:s.sample,masks:s.maskLayers,sel:s.selectedPhase,fsView:s.fsView};
+    this._ro=new ResizeObserver(()=>this.redraw());
+    this.observeCurrent();
+    this.attachWheel();
+    window.addEventListener('resize',this._rs=()=>this.redraw());
+    this.scheduleRedraw();
+  }
+  componentDidUpdate(){
+    this.attachWheel();
+    const s=this.state, p=this._prev||{};
+    if(p.sample!==s.sample&&p.sample!==undefined){this.generateMicro();}
+    else if(p.masks!==s.maskLayers||p.sel!==s.selectedPhase){this.renderSeg();}
+    const structural=(p.view!==s.view||p.sample!==s.sample||p.fsView!==s.fsView);
+    this._prev={view:s.view,sample:s.sample,masks:s.maskLayers,sel:s.selectedPhase,fsView:s.fsView};
+    if(structural){requestAnimationFrame(()=>this.observeCurrent());this.scheduleRedraw();}
+    else this.redraw();
+  }
+  componentWillUnmount(){this._ro&&this._ro.disconnect();window.removeEventListener('resize',this._rs);}
+
+  // ── Real-data integration ─────────────────────────────────────────────────
+  async loadReal(){
+    try{
+      const bs=await fetch('/api/batches').then(r=>r.json());
+      if(!Array.isArray(bs)||!bs.length)return;
+      this.batchList=bs.map(b=>({id:b.id,label:b.label,sub:b.sub||''}));
+      for(const b of bs){
+        let rows=[];
+        try{const ss=await fetch('/api/batches/'+b.id+'/samples').then(r=>r.json());rows=(ss||[]).map(s=>this.realRow(s));}catch(e){}
+        this._batchCache[b.id]={rows,weights:[0.45,0.28,0.14,0.09,0.04]};
+      }
+      const first=bs.find(b=>(this._batchCache[b.id].rows||[]).length)||bs[0];
+      const frow=(this._batchCache[first.id].rows||[])[0];
+      this._realLoaded=true;
+      this.rebuildQueue();
+      this.setState({batch:first.id,sample:frow?frow.id:this.state.sample,upBatch:first.id});
+      this.startQueuePolling();
+    }catch(e){console.warn('loadReal',e);}
+  }
+  startQueuePolling(){
+    if(this._pollActive)return;
+    this._pollActive=true;
+    const tick=async()=>{
+      let anyPending=false;
+      for(const b of this.batchList){
+        try{
+          const ss=await fetch('/api/batches/'+b.id+'/samples').then(r=>r.json());
+          const prev=this._batchCache[b.id]||{};
+          this._batchCache[b.id]={rows:(ss||[]).map(s=>this.realRow(s)),weights:prev.weights||[0.45,0.28,0.14,0.09,0.04]};
+          if((ss||[]).some(s=>['Загружено','Новый','Обработка'].includes(s.status)))anyPending=true;
+        }catch(e){}
+      }
+      this.rebuildQueue();
+      // refresh the currently-open analysis sample once it finishes processing
+      if(this.state.view==='analysis'){
+        const sid=this.state.sample;
+        const row=Object.values(this._batchCache).flatMap(b=>b.rows||[]).find(r=>r.id===sid);
+        if(row&&(row.status==='Готово'||row.status==='Проверка')&&!(this._sampleCache&&this._sampleCache[sid]))this.applyReal(sid);
+      }
+      this.setState({});
+      this._pollTimer=setTimeout(tick,anyPending?2500:6000);
+    };
+    this._pollTimer=setTimeout(tick,1500);
+  }
+  queueStage(status){
+    const map={'Готово':['Готово',1],'Проверка':['Требует проверки',1],'Обработка':['Обработка…',0.6],
+      'Загружено':['В очереди',0],'Новый':['В очереди',0],'Ошибка':['Ошибка',0],
+      'Подтверждён':['Подтверждён экспертом',1],'Отклонён':['Отклонён экспертом',1]};
+    return map[status]||['В очереди',0];
+  }
+  rebuildQueue(){
+    const items=[],seen={};
+    this.batchList.forEach(b=>{
+      const cache=this._batchCache[b.id];
+      (cache&&cache.rows||[]).forEach(r=>{
+        if(seen[r.id])return; seen[r.id]=1;
+        const [stage,p]=this.queueStage(r.status);
+        items.push({id:r.id,stage,p,mods:r.mods||['SEM']});
+      });
+    });
+    this.queue=items;
+  }
+  async deleteQueueItem(id){
+    this.queue=this.queue.filter(q=>q.id!==id);
+    Object.keys(this._batchCache).forEach(bid=>{const b=this._batchCache[bid];if(b.rows)b.rows=b.rows.filter(r=>r.id!==id);});
+    if(this._sampleCache)delete this._sampleCache[id];
+    // if the deleted sample is the currently open one, switch to another
+    let next=this.state.sample;
+    if(next===id){const any=Object.values(this._batchCache).flatMap(b=>b.rows||[])[0];next=any?any.id:id;}
+    this.setState({sample:next});
+    try{await fetch('/api/samples/'+id,{method:'DELETE'});}catch(e){console.warn('delete',e);}
+  }
+  approveSample(id,oreClass){return this.setVerdict(id,'approved','Подтверждён',oreClass);}
+  rejectSample(id){return this.setVerdict(id,'rejected','Отклонён');}
+  async setVerdict(id,verdict,status,oreClass){
+    Object.keys(this._batchCache).forEach(bid=>{const b=this._batchCache[bid];if(b.rows){const row=b.rows.find(r=>r.id===id);if(row){row.status=status;row.verdict=verdict;if(oreClass){row.oreClass=oreClass;row.expertClass=oreClass;}}}});
+    if(oreClass&&this._sampleCache&&this._sampleCache[id])this._sampleCache[id].ore_class=oreClass;
+    if(oreClass&&this._realOre&&this.state.sample===id){this._realOre.oreClass=oreClass;this._realOre.expertOverridden=true;}
+    this.rebuildQueue();
+    this.setState({});
+    const body={verdict};if(oreClass)body.ore_class=oreClass;
+    try{await fetch('/api/samples/'+id+'/review',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});}catch(e){console.warn('review',e);}
+  }
+  onFilesPicked(e){const files=Array.from((e.target&&e.target.files)||[]);this._uploadFiles=(this._uploadFiles||[]).concat(files);this.setState({});}
+  onDropFiles(e){e.preventDefault();const files=Array.from((e.dataTransfer&&e.dataTransfer.files)||[]);if(files.length){this._uploadFiles=(this._uploadFiles||[]).concat(files);this.setState({});}}
+  async runUpload(){
+    const files=this._uploadFiles||[];
+    if(!files.length){return;}
+    let bid=this.state.upBatch;
+    if(!bid||bid==='__new')bid=(this.state.upBatchNew.trim()||('Партия-'+String(Date.now()).slice(-4)));
+    let sid=this.state.upSample;
+    if(!sid||sid==='__new'||this.state.upBatch==='__new')sid=(this.state.upSampleNew.trim()||('SH-'+String(Date.now()).slice(-4)));
+    try{
+      await fetch('/api/batches',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:bid,label:bid})});
+      await fetch('/api/samples',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:sid,batch_id:bid,um_per_px:this._upScale||null})});
+      for(const f of files){const fd=new FormData();fd.append('modality','om');fd.append('file',f);await fetch('/api/samples/'+sid+'/files',{method:'POST',body:fd});}
+      this._uploadFiles=[];
+      if(!this.batchList.find(b=>b.id===bid))this.batchList.unshift({id:bid,label:bid,sub:'OM-шлифы'});
+      try{const ss=await fetch('/api/batches/'+bid+'/samples').then(r=>r.json());this._batchCache[bid]={rows:(ss||[]).map(s=>this.realRow(s)),weights:[0.45,0.28,0.14,0.09,0.04]};}catch(e){}
+      this.rebuildQueue();
+      this._pollActive=false; this.startQueuePolling();
+      this.setState({view:'analysis',batch:bid,sample:sid,roi:null});
+    }catch(e){console.warn('upload',e);alert('Ошибка загрузки: '+e);}
+  }
+  async addBatch(){
+    const name=window.prompt('Название новой партии:','Партия-Д');
+    if(!name||!name.trim())return;
+    const id='P'+String(Date.now()).slice(-6);
+    try{await fetch('/api/batches',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,label:name.trim()})});}catch(e){}
+    if(!this.batchList.find(b=>b.id===id))this.batchList.push({id,label:name.trim(),sub:'OM-шлифы'});
+    this._batchCache[id]={rows:[],weights:[0.45,0.28,0.14,0.09,0.04]};
+    this.setState({batch:id,batchOpen:false,upBatch:id});
+  }
+  async deleteBatch(id){
+    if(!window.confirm('Удалить партию и все её образцы?'))return;
+    this.batchList=this.batchList.filter(b=>b.id!==id);
+    delete this._batchCache[id];
+    const next=this.batchList[0];
+    const nextSample=next&&this._batchCache[next.id]&&(this._batchCache[next.id].rows[0]||{}).id;
+    try{await fetch('/api/batches/'+id,{method:'DELETE'});}catch(e){console.warn('delBatch',e);}
+    this.rebuildQueue();
+    this.setState({batch:next?next.id:'',sample:nextSample||this.state.sample,batchOpen:false});
+  }
+  realRow(s){
+    const r=s.results||{};
+    const hasRes=r&&Object.keys(r).length;
+    const mods=(s.modalities&&s.modalities.length)?s.modalities:['OM'];
+    let status;
+    if(s.expert_verdict==='approved')status='Подтверждён';
+    else if(s.expert_verdict==='rejected')status='Отклонён';
+    else if(hasRes)status=r.review_needed?'Проверка':'Готово';
+    else status=s.status||'Загружено';
+    return {id:s.id,mods,
+      oreClass:r.ore_class||'—',
+      phase:r.ore_class||'не проанализирован',
+      talcPct:(r.talc_pct!=null?r.talc_pct:null),
+      sulfidePct:(r.sulfide_pct!=null?r.sulfide_pct:null),
+      def:r.fine_count||0,crit:0,
+      agree:typeof r.confidence==='number'?Math.round(r.confidence):92,
+      conf:(typeof r.confidence==='number'?r.confidence:90)/100,
+      review:!!r.review_needed,reviewReason:r.review_reason||'',
+      verdict:s.expert_verdict||null,expertClass:s.expert_ore_class||null,
+      batch:s.batch_id,status,_real:true};
+  }
+  async ensureAnalyzed(id){
+    this._sampleCache=this._sampleCache||{};
+    if(this._sampleCache[id])return this._sampleCache[id];
+    let s=null;
+    try{s=await fetch('/api/samples/'+id).then(r=>r.json());}catch(e){return null;}
+    if(!s||s.detail)return null;
+    if(!s.results){
+      try{const resp=await fetch('/api/samples/'+id+'/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})}).then(r=>r.json());s.results=resp&&resp.results;}catch(e){return null;}
+    }
+    if(!s.results)return null;
+    this._sampleCache[id]=s.results;
+    // reflect new status into the batch row
+    const cache=this._batchCache[s.batch_id];
+    if(cache){const row=cache.rows.find(r=>r.id===id);if(row){const rr=this.realRow({...s});Object.assign(row,rr);}}
+    return s.results;
+  }
+  imgToSquareCanvas(url,N,nearest){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{const cv=document.createElement('canvas');cv.width=cv.height=N;const ctx=cv.getContext('2d');if(nearest)ctx.imageSmoothingEnabled=false;ctx.drawImage(im,0,0,N,N);res(cv);};im.onerror=rej;im.src=url;});}
+  async applyReal(id){
+    const r=await this.ensureAnalyzed(id);
+    if(!r||this.state.sample!==id)return;
+    const N=1024;
+    const pal=(r.palette||[]).filter(p=>p.idx!==r.bg_idx);
+    if(pal.length){
+      const keys=['alpha','beta','gamma','delta','pore'];
+      this.phases=pal.map((p,i)=>{const k=keys[i]||('p'+i);
+        const hex='#'+p.rgb.map(v=>('0'+(v|0).toString(16)).slice(-2)).join('');
+        const fr=(r.phase_fractions&&r.phase_fractions[p.name]!=null)?r.phase_fractions[p.name]/100:0;
+        return {key:k,name:p.name,short:p.name.length>13?p.name.slice(0,13):p.name,color:hex,rgb:p.rgb,w:fr,cryst:'—',sg:'—',match:0};
+      });
+      this.idx2key=this.phases.map(p=>p.key);
+      this.fractions=this.phases.map(p=>p.w);
+    }
+    if(r.defect_polys){
+      this.defects=r.defect_polys.map(d=>({x:d.x,y:d.y,r:d.r,sev:d.sev,type:d.kind||'Срастание',replacement:d.replacement,pts:(d.pts||[]).map(p=>({x:p.x,y:p.y}))}));
+    }
+    if(typeof r.confidence==='number')this.confSample=r.confidence/100;
+    this._realOre={oreClass:r.ore_class,conclusion:r.conclusion,talcPct:r.talc_pct,sulfidePct:r.sulfide_pct,
+      normalShare:r.normal_share,fineShare:r.fine_share,review:!!r.review_needed,reviewReason:r.review_reason,
+      modality:r.modality,grainCount:r.grain_count,fineCount:r.fine_count,report:r.report,expertOverridden:!!r.expert_overridden};
+    try{
+      const [rawCv,maskCv,uncCv]=await Promise.all([this.imgToSquareCanvas(r.original_url,N),this.imgToSquareCanvas(r.mask_url,N,true),this.imgToSquareCanvas(r.uncertainty_url,N).catch(()=>null)]);
+      if(this.state.sample!==id)return;
+      this.rawCv=rawCv;this.uncCv=uncCv;
+      const data=maskCv.getContext('2d').getImageData(0,0,N,N).data;
+      const pa=new Uint8Array(N*N),pcols=this.phases.map(p=>p.rgb);
+      for(let i=0;i<N*N;i++){const j=i*4,rr=data[j],gg=data[j+1],bb=data[j+2];let bi=0,bd=1e12;for(let k=0;k<pcols.length;k++){const c=pcols[k];const dd=(rr-c[0])*(rr-c[0])+(gg-c[1])*(gg-c[1])+(bb-c[2])*(bb-c[2]);if(dd<bd){bd=dd;bi=k;}}pa[i]=bi;}
+      const bnd=new Uint8Array(N*N);
+      for(let y=1;y<N-1;y++)for(let x=1;x<N-1;x++){const idx=y*N+x,p=pa[idx];if(pa[idx-1]!==p||pa[idx+1]!==p||pa[idx-N]!==p||pa[idx+N]!==p)bnd[idx]=1;}
+      this.pa=pa;this.bnd=bnd;this.N=N;this.renderSeg();
+    }catch(e){console.warn('real img',e);}
+    if(this._realLoaded)this.rebuildQueue();
+    this.setState({});this.scheduleRedraw();
+  }
+
+  pal(){
+    if(this.state.theme==='dark')return{bg:'#07121F',surface:'#0E2030',surface2:'#13283D',surfaceHi:'#16314A',border:'#21405E',borderHi:'#2C5276',text:'#EAF2FB',textDim:'#92AEC9',textFaint:'#5E7C99',primary:'#2E8FE0',primaryDim:'#15375533',accent:'#3CC8F5',grid:'#173453',ok:'#28C98A',warn:'#E8943A',bad:'#FF5C7A',shadow:'0 1px 2px rgba(0,0,0,.5),0 12px 34px rgba(0,0,0,.4)',sidebar:'#091826',sevLow:'#E6B33C',sevMed:'#E0883C',sevCrit:'#D9534F',defStroke:'#E0883C'};
+    return{bg:'#E9F0F7',surface:'#FFFFFF',surface2:'#F4F8FC',surfaceHi:'#FFFFFF',border:'#DCE7F2',borderHi:'#C4D6E8',text:'#0B2138',textDim:'#5A748F',textFaint:'#90A6BC',primary:'#0062B1',primaryDim:'#E6F0FA',accent:'#0091D6',grid:'#E7EFF7',ok:'#1FAE73',warn:'#E08A2E',bad:'#E84A6B',shadow:'0 1px 3px rgba(13,38,66,.08),0 10px 26px rgba(13,38,66,.07)',sidebar:'#072A4D',sevLow:'#E6B33C',sevMed:'#E0883C',sevCrit:'#D9534F',defStroke:'#E0883C'};
+  }
+  polar(cx,cy,r,a){return[cx+r*Math.cos(a),cy+r*Math.sin(a)];}
+  arc(cx,cy,r,r2,a0,a1){const large=(a1-a0)>Math.PI?1:0;const[x0,y0]=this.polar(cx,cy,r,a0),[x1,y1]=this.polar(cx,cy,r,a1),[x2,y2]=this.polar(cx,cy,r2,a1),[x3,y3]=this.polar(cx,cy,r2,a0);return`M${x0} ${y0} A${r} ${r} 0 ${large} 1 ${x1} ${y1} L${x2} ${y2} A${r2} ${r2} 0 ${large} 0 ${x3} ${y3} Z`;}
+  segToNorm(e){const tf=this._semTf;if(!tf)return null;const rect=e.target.getBoundingClientRect();const nx=(e.clientX-rect.left-tf.ox)/tf.size,ny=(e.clientY-rect.top-tf.oy)/tf.size;return{nx:Math.max(0,Math.min(1,nx)),ny:Math.max(0,Math.min(1,ny))};}
+
+  semWheel(e){e.preventDefault();const f=e.deltaY<0?1.14:0.877;this.setState(s=>{const nz=Math.max(1,Math.min(5,s.zoom*f));const ratio=nz/s.zoom;return{zoom:nz,panX:s.panX*ratio,panY:s.panY*ratio};});}
+  defWheel(e){e.preventDefault();const f=e.deltaY<0?1.14:0.877;this.setState(s=>{const z0=s.defZoom||1;const nz=Math.max(1,Math.min(6,z0*f));const r=nz/z0;return{defZoom:nz,defPanX:(s.defPanX||0)*r,defPanY:(s.defPanY||0)*r};});}
+  defDown(e){this._defDrag={x:e.clientX-(this.state.defPanX||0),y:e.clientY-(this.state.defPanY||0)};}
+  defMove(e){if(!this._defDrag)return;this.setState({defPanX:e.clientX-this._defDrag.x,defPanY:e.clientY-this._defDrag.y});}
+  defUp(){this._defDrag=null;}
+  semDown(e){const rect=e.target.getBoundingClientRect();const mx=e.clientX-rect.left;const sx=rect.width*this.state.slider/100;
+    if(Math.abs(mx-sx)<22){this._divDrag=true;return;}
+    if(this.state.analysisMode==='roi'){const n=this.segToNorm(e);if(n){this._roiDrag=true;this.setState({roi:{x0:n.nx,y0:n.ny,x1:n.nx,y1:n.ny}});}}
+    else{this._drag={x:e.clientX,y:e.clientY,px:this.state.panX,py:this.state.panY};}}
+  semMove(e){if(this._divDrag){const rect=e.target.getBoundingClientRect();const v=Math.max(0,Math.min(100,(e.clientX-rect.left)/rect.width*100));this.setState({slider:v});return;}
+    if(this.state.analysisMode==='roi'&&this._roiDrag){const n=this.segToNorm(e);if(n)this.setState(s=>({roi:{...s.roi,x1:n.nx,y1:n.ny}}));}
+    else if(this._drag){this.setState({panX:this._drag.px+(e.clientX-this._drag.x),panY:this._drag.py+(e.clientY-this._drag.y)});}}
+  semUp(){this._drag=null;this._divDrag=false;if(this._roiDrag){this._roiDrag=false;this.setState(s=>{if(s.roi&&Math.abs(s.roi.x1-s.roi.x0)<0.02&&Math.abs(s.roi.y1-s.roi.y0)<0.02)return{roi:null};return{};});}}
+  xrdWheel(e){e.preventDefault();const tf=this._xrdTf;if(!tf)return;const r=e.target.getBoundingClientRect();const mx=e.clientX-r.left;const frac=Math.max(0,Math.min(1,(mx-tf.pl)/tf.pw));const tt=tf.x0+frac*(tf.x1-tf.x0);const f=e.deltaY<0?0.84:1.19;this.setState(s=>{let range=(s.xrdX1-s.xrdX0)*f;range=Math.max(5,Math.min(70,range));let nx0=tt-frac*range,nx1=nx0+range;if(nx0<20){nx0=20;nx1=20+range;}if(nx1>90){nx1=90;nx0=90-range;}return{xrdX0:nx0,xrdX1:nx1};});}
+  xrdDown(e){const tf=this._xrdTf;if(!tf)return;const r=e.target.getBoundingClientRect();this._xs={x:e.clientX-r.left,y:e.clientY-r.top};this.setState({xsel:null,hoverPeak:null});}
+  xrdMove(e){const tf=this._xrdTf;if(!tf)return;const r=e.target.getBoundingClientRect();const mx=e.clientX-r.left,my=e.clientY-r.top;
+    if(this._xs){const l=Math.min(this._xs.x,mx),t=Math.min(this._xs.y,my),w=Math.abs(mx-this._xs.x),h=Math.abs(my-this._xs.y);this.setState({xsel:{l,t,w,h}});return;}
+    const frac=(mx-tf.pl)/tf.pw;const tt=tf.x0+frac*(tf.x1-tf.x0);const tol=(tf.x1-tf.x0)/26;let best=null,bd=tol;this.peaks.forEach(p=>{const d=Math.abs(p.tt-tt);if(d<bd){bd=d;best=p;}});this.setState({hoverPeak:best,mx,my});}
+  xrdUp(e){const tf=this._xrdTf;const sel=this.state.xsel;if(this._xs&&tf&&sel&&sel.w>8&&sel.h>8){const fa=(sel.l-tf.pl)/tf.pw,fb=(sel.l+sel.w-tf.pl)/tf.pw;let nx0=tf.x0+Math.max(0,fa)*(tf.x1-tf.x0),nx1=tf.x0+Math.min(1,fb)*(tf.x1-tf.x0);nx0=Math.max(20,nx0);nx1=Math.min(90,nx1);if(nx1-nx0<3)nx1=nx0+3;const vTop=tf.dispMin+(1-(sel.t-tf.pt)/tf.ph)*(tf.dispMax-tf.dispMin);const vBot=tf.dispMin+(1-(sel.t+sel.h-tf.pt)/tf.ph)*(tf.dispMax-tf.dispMin);let yHi=Math.max(vTop,vBot)/tf.fullMax,yLo=Math.min(vTop,vBot)/tf.fullMax;yHi=Math.min(1.05,Math.max(0.05,yHi));yLo=Math.max(0,Math.min(yHi-0.05,yLo));this.setState({xrdX0:nx0,xrdX1:nx1,xrdYLo:yLo,xrdYHi:yHi,xsel:null});}else this.setState({xsel:null});this._xs=null;}
+
+  renderVals(){
+    const c=this.pal(); const isDark=this.state.theme==='dark'; const st=this.state;
+    const fr=this.fractions||this.phases.map(p=>p.w);
+    const ic={overview:'M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z',
+      analysis:'M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M9 13a3 3 0 1 0 6 0 3 3 0 0 0-6 0',
+      review:'M12 3l7 3v5c0 4.2-2.9 7.4-7 8.5-4.1-1.1-7-4.3-7-8.5V6zM9 12l2 2 4-4',
+      upload:'M12 16V4M7 9l5-5 5 5M5 16v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3'};
+    const titles={review:['Экспертная проверка','Вердикты эксперта по результатам автоматической обработки'],overview:['Общий анализ','Классы руд по партии, статистика и экспертная проверка'],analysis:['Образец шлифа','Сегментация срастаний и талька, классификация руды'],upload:['Загрузка','Приём панорамных OM-снимков полированных шлифов']};
+    const order=['overview','analysis','review','upload'];
+    const ORE=['Рядовая','Труднообогатимая','Оталькованная'];
+    const oreCol=cl=>cl==='Оталькованная'?c.accent:cl==='Труднообогатимая'?c.warn:cl==='Рядовая'?c.ok:c.textDim;
+
+    // ---- expert review queue (across all batches), shown on the overview ----
+    const reviewList=[];
+    (this.batchList||[]).forEach(b=>{
+      const cache=this._batchCache[b.id];
+      (cache&&cache.rows||[]).forEach(r=>{
+        if(r.status==='Проверка'||(r.status==='Готово'&&r.conf<0.95)){
+          const oc=r.oreClass||'—';
+          reviewList.push({id:r.id,batch:b.label,phase:oc,phaseColor:oreCol(oc),
+            talc:(r.talcPct!=null?r.talcPct.toFixed(0)+'%':'—'),talcColor:(r.talcPct>10?c.accent:c.textDim),conf:(typeof r.conf==='number'?Math.round(r.conf*100)+'%':'—'),
+            reason:r.reviewReason||'пограничная классификация',
+            classOpts:ORE.map(cl=>({label:cl,onClick:()=>this.approveSample(r.id,cl),
+              style:{padding:'5px 9px',borderRadius:'7px',cursor:'pointer',fontSize:'11px',fontWeight:600,fontFamily:'inherit',
+                border:'1px solid '+(cl===oc?oreCol(oc):c.border),background:cl===oc?oreCol(oc):c.surface2,color:cl===oc?'#fff':c.textDim}})),
+            onReject:()=>this.rejectSample(r.id),
+            onOpen:()=>this.setState({sample:r.id,view:'analysis',roi:null})});
+        }
+      });
+    });
+    const reviewCount=reviewList.length;
+    const reviewEmpty=reviewCount===0;
+
+    // current sample review state — for the verdict panel on the analysis screen
+    const curRow=Object.values(this._batchCache).flatMap(b=>b.rows||[]).find(r=>r.id===st.sample);
+    const curVerdict=curRow?curRow.verdict:null;
+    const anaNeedsReview=!!(curRow&&!curVerdict&&(curRow.status==='Проверка'||curRow.status==='Готово'));
+    const anaApproved=curVerdict==='approved';
+    const anaRejected=curVerdict==='rejected';
+    const anaModelClass=curRow?(curRow.oreClass||'—'):'—';
+    const anaClassOpts=ORE.map(cl=>({label:cl,onClick:()=>this.approveSample(st.sample,cl),
+      style:{padding:'8px 14px',borderRadius:'9px',cursor:'pointer',fontSize:'12.5px',fontWeight:600,fontFamily:'inherit',
+        border:'1px solid '+(cl===anaModelClass?oreCol(anaModelClass):c.border),background:cl===anaModelClass?oreCol(anaModelClass):c.surface2,color:cl===anaModelClass?'#fff':c.text}}));
+
+    const nav=order.map(k=>{const active=st.view===k;return{key:k,label:titles[k][0],icon:ic[k],onClick:()=>this.setState({view:k}),
+      badge:null,
+      wrapStyle:{display:'flex',alignItems:'center',gap:'12px',padding:'11px 13px',borderRadius:'10px',cursor:'pointer',color:active?'#fff':'rgba(255,255,255,.62)',background:active?'rgba(255,255,255,.14)':'transparent',fontSize:'13.5px',fontWeight:active?600:500,transition:'all .15s'},
+      iconColor:active?'#fff':'rgba(255,255,255,.62)'};});
+
+    const phaseRows=this.phases.map((p,i)=>{const on=st.maskLayers[p.key];const sel=st.selectedPhase===p.key;return{
+      key:p.key,name:p.name,short:p.short,color:p.color,pct:(fr[i]*100).toFixed(1),
+      onToggle:()=>this.setState(s=>({maskLayers:{...s.maskLayers,[p.key]:!s.maskLayers[p.key]}})),
+      onSelect:()=>this.setState(s=>({selectedPhase:s.selectedPhase===p.key?null:p.key})),
+      chipStyle:{display:'flex',alignItems:'center',gap:'7px',padding:'6px 10px',borderRadius:'8px',cursor:'pointer',background:sel?c.primaryDim:c.surface2,border:'1px solid '+(sel?c.borderHi:c.border),transition:'all .12s'},
+      eyeOpacity:on?1:0.3};});
+
+    // ---- overview data (per selected batch) ----
+    const stCol={'Готово':c.ok,'Проверка':c.warn,'Обработка':c.primary,'Загружено':c.textFaint,'Новый':c.textFaint,'Ошибка':c.bad,'Подтверждён':c.ok,'Отклонён':c.bad};
+    const curBatch=this.getBatch(st.batch);
+    const BR=curBatch.rows;
+    const recentById={}; BR.forEach(r=>recentById[r.id]=r);
+    const done=BR.filter(r=>r.status==='Готово').length;
+    const review=BR.filter(r=>r.status==='Проверка').length;
+    const proc=BR.filter(r=>r.status==='Обработка').length;
+    const approved=BR.filter(r=>r.status==='Подтверждён').length;
+    const rejected=BR.filter(r=>r.status==='Отклонён').length;
+    const ordinary=BR.filter(r=>r.oreClass==='Рядовая').length;
+    const hard=BR.filter(r=>r.oreClass==='Труднообогатимая').length;
+    const talced=BR.filter(r=>r.oreClass==='Оталькованная').length;
+    const okpis=[
+      {label:'Образцов в партии',value:String(BR.length),sub:done+' готово · '+proc+' в обработке',color:c.text},
+      {label:'Рядовая руда',value:String(ordinary),sub:'обычные срастания',color:ordinary?c.ok:c.textDim},
+      {label:'Труднообогатимая',value:String(hard),sub:'тонкие срастания',color:hard?c.warn:c.textDim},
+      {label:'Оталькованная',value:String(talced),sub:'тальк >10%',color:talced?c.accent:c.textDim}
+    ];
+    const total=BR.length;
+    const statusDist=[
+      {label:'Готово',count:done,color:c.ok},
+      {label:'Подтверждён',count:approved,color:c.accent},
+      {label:'Требует проверки',count:review,color:c.warn},
+      {label:'Отклонён',count:rejected,color:c.bad},
+      {label:'В обработке',count:proc,color:c.primary}
+    ].map(s=>({...s,pct:s.count/total*100,pctL:(s.count/total*100).toFixed(0)}));
+    // ore-class distribution donut
+    const oreDist=[{name:'Рядовая',count:ordinary,color:c.ok},{name:'Труднообогатимая',count:hard,color:c.warn},{name:'Оталькованная',count:talced,color:c.accent}];
+    const oreTot=Math.max(1,ordinary+hard+talced);
+    let ba=-Math.PI/2; const batchDonut=oreDist.map(o=>{const ang=o.count/oreTot*Math.PI*2;const seg={d:this.arc(140,140,90,58,ba,ba+Math.max(0.0001,ang-0.012)),color:o.color};ba+=ang;return seg;});
+    const batchLegend=oreDist.map(o=>({name:o.name,color:o.color,pct:(o.count/oreTot*100).toFixed(0)}));
+    const recentRows=BR.map(r=>({id:r.id,phase:r.phase,defLabel:String(r.def),crit:r.crit,
+      agree:(r.talcPct!=null?r.talcPct.toFixed(0):'—'),
+      status:r.status,statusColor:stCol[r.status],
+      agreeColor:(r.talcPct>10?c.accent:c.text),defColor:c.text,
+      modChips:r.mods.map(m=>({m,color:this.modColor[m]||c.textDim})),onClick:()=>this.setState({sample:r.id,view:'analysis',roi:null})}));
+    const batchBtns=this.batchList.map(b=>{const active=st.batch===b.id;return{label:'Партия '+b.label,sub:b.sub,
+      onClick:()=>this.setState({batch:b.id,sample:this.getBatch(b.id).rows[0].id,roi:null}),
+      style:{display:'flex',alignItems:'center',padding:'8px 14px',borderRadius:'10px',cursor:'pointer',fontFamily:'inherit',fontSize:'12.5px',
+        border:'1px solid '+(active?c.primary:c.border),background:active?c.primaryDim:c.surface,color:active?c.primary:c.text}};});
+
+    // trend + gauge
+    const lo=0.78,hi=0.99; const tx=i=>4+i/(this.batches.length-1)*92; const ty=v=>4+(1-(v-lo)/(hi-lo))*44;
+    const line1=this.batches.map((b,i)=>tx(i)+','+ty(b.acc)).join(' ');
+    const line2=this.batches.map((b,i)=>tx(i)+','+ty(b.real)).join(' ');
+    const trDots=this.batches.map((b,i)=>({cx:tx(i),cy:ty(b.acc),cx2:tx(i),cy2:ty(b.real),onEnter:()=>this.setState({trendHover:i}),onLeave:()=>this.setState({trendHover:null})}));
+    const th=st.trendHover; const trTip=th!=null?{x:tx(th),y:ty(this.batches[th].acc),label:this.batches[th].label,acc:(this.batches[th].acc*100).toFixed(1),real:(this.batches[th].real*100).toFixed(1)}:null;
+    const ga0=Math.PI*0.75,ga1=Math.PI*0.75+Math.PI*1.5;
+    const gaugeBg=this.arc(60,58,46,38,ga0,ga1); const gaugePath=this.arc(60,58,46,38,ga0,ga0+(ga1-ga0)*this.confidence);
+    const metricTasks=this.metrics.map(m=>({task:m.task,real:(m.real*100).toFixed(0),simW:((m.sim-0.7)/0.3*100).toFixed(0),realW:((m.real-0.7)/0.3*100).toFixed(0)}));
+
+    // upload/queue
+    const queue=this.queue.map(q=>({...q,pct:Math.round(q.p*100),done:q.p>=1,active:q.p>0&&q.p<1,barColor:q.p>=1?c.ok:c.accent,modChips:q.mods.map(m=>({m,color:this.modColor[m]})),onDelete:()=>this.deleteQueueItem(q.id)}));
+    const queueEmpty=queue.length===0;
+    const uploadFiles=(this._uploadFiles||[]).map(f=>({name:f.name,mod:'OM',size:(f.size/1048576).toFixed(1)+' МБ',color:this.modColor.OM}));
+    const uploadEmpty=uploadFiles.length===0;
+    const modKinds=[
+      {mod:'OM',color:this.modColor.OM,desc:'Оптическая микроскопия — панорамы полированных шлифов'},
+      {mod:'SEM',color:this.modColor.SEM,desc:'Растровая электронная — субмикронная морфология'}
+    ];
+
+    // ---- ore analysis data ----
+    const ore=this._realOre;
+    const oreClass=ore?ore.oreClass:'—';
+    const talcPct=ore?(ore.talcPct||0):0;
+    const sulfidePct=ore?(ore.sulfidePct||0):0;
+    const normalShare=ore?(ore.normalShare||0):0;
+    const fineShare=ore?(ore.fineShare||0):0;
+    const conf=this.confSample||0.8;
+    const oreClassColor=oreClass==='Оталькованная'?c.accent:oreClass==='Труднообогатимая'?c.warn:oreClass==='Рядовая'?c.ok:c.textDim;
+
+    const frPct=this.phases.map((p,i)=>({name:p.name,short:p.short,pct:fr[i]*100}));
+    const sorted=[...frPct].filter(p=>p.name!=='Матрица'&&p.pct>0).sort((x,y)=>y.pct-x.pct);
+    const dom=sorted[0]||{name:oreClass,short:oreClass,pct:talcPct};
+
+    // grains (срастания): красный=тонкие (sev3), зелёный=обычные
+    const defTotal=(this.defects||[]).length;
+    const fineCount=(this.defects||[]).filter(d=>d.sev>=3).length;
+    const normalCount=defTotal-fineCount;
+    const dl=(this.defects||[]).map((d,i)=>({i:i+1,type:d.type,sevColor:d.sev>=3?c.bad:c.ok,sevLabel:d.sev>=3?'Тонкое':'Обычное',pos:(d.x*100|0)+', '+(d.y*100|0)}));
+    const defSummary=[{type:'Обычные срастания',count:normalCount},{type:'Тонкие срастания',count:fineCount}];
+    const critCount=fineCount;
+    let daSum=0;(this.defects||[]).forEach(d=>{daSum+=Math.PI*d.r*d.r;});const daPct=daSum*100;
+    const avgDia=(this.defects||[]).reduce((s,d)=>s+2*d.r*(this.N||460),0)/Math.max(1,defTotal);
+
+    let roiStats=null, roiArea=null;
+    if(st.roi&&this.pa){
+      const N=this.N; const rx0=Math.min(st.roi.x0,st.roi.x1),rx1=Math.max(st.roi.x0,st.roi.x1),ry0=Math.min(st.roi.y0,st.roi.y1),ry1=Math.max(st.roi.y0,st.roi.y1);
+      const px0=(rx0*N)|0,px1=Math.max((rx0*N|0)+1,(rx1*N)|0),py0=(ry0*N)|0,py1=Math.max((ry0*N|0)+1,(ry1*N)|0);
+      const cnt=new Float64Array(5); let tot=0;
+      for(let y=py0;y<py1;y++)for(let x=px0;x<px1;x++){cnt[this.pa[y*N+x]]++;tot++;}
+      if(tot>80){roiStats=this.phases.map((p,i)=>({short:p.name,color:p.color,pct:(cnt[i]/tot*100).toFixed(1)}));roiArea=(((rx1-rx0)*(ry1-ry0))*100).toFixed(1);}
+    }
+
+    const segBtn=(active,label,onClick)=>({label,onClick,style:{padding:'6px 12px',borderRadius:'7px',cursor:'pointer',fontSize:'12px',fontWeight:600,border:'none',background:active?c.primary:'transparent',color:active?'#fff':c.textDim}});
+    const imgModeBtns=[segBtn(st.imgMode==='sem','Ориг.',()=>this.setState({imgMode:'sem'})),segBtn(st.imgMode==='om','OM',()=>this.setState({imgMode:'om'}))];
+    const modeBtns=[segBtn(st.analysisMode==='pan','Пан',()=>this.setState({analysisMode:'pan'})),segBtn(st.analysisMode==='roi','Выделение',()=>this.setState({analysisMode:'roi'}))];
+    const numInput='width:54px;padding:6px 7px;border-radius:7px;border:1px solid '+c.border+';background:'+c.surface2+';color:'+c.text+";font-family:'IBM Plex Mono',monospace;font-size:12px;text-align:center;outline:none;";
+    const numInputDark=numInput;
+
+    const modShort=(ore&&ore.modality)||(st.imgMode==='om'?'OM':'SEM');
+    const modFull=modShort==='OM'?'OM (оптическая микроскопия)':'SEM (электронная микроскопия)';
+
+    const diagTiles=[
+      {value:oreClass,label:'Класс руды'+(ore&&ore.expertOverridden?' · эксперт':''),accent:oreClassColor},
+      {value:talcPct.toFixed(1)+'%',label:'Тальк (порог 10%)',accent:talcPct>10?c.accent:c.text},
+      {value:sulfidePct.toFixed(1)+'%',label:'Сульфиды всего',accent:c.primary},
+      {value:normalShare.toFixed(0)+'%',label:'Обычные срастания',accent:c.ok},
+      {value:fineShare.toFixed(0)+'%',label:'Тонкие срастания',accent:c.bad},
+      {value:(conf*100).toFixed(0)+'%',label:'Уверенность модели (TTA)',accent:c.primary}
+    ];
+
+    const imgLines=(ore&&ore.report&&ore.report.image)||[];
+    const clsLines=(ore&&ore.report&&ore.report.classification)||[];
+    const reportBlocks=[
+      {title:'Анализ изображения шлифа',hasTable:false,note:'',lines:imgLines.map(t=>({l:'',v:t}))},
+      {title:'Классификация руды',hasTable:false,note:'Логика ТЗ: тальк >10% → оталькованная; иначе преобладание обычных срастаний → рядовая, тонких → труднообогатимая.',lines:clsLines.map(t=>({l:'',v:t}))}
+    ];
+
+    const quickStats=[
+      {label:'Класс руды',value:oreClass,color:oreClassColor},
+      {label:'Тальк',value:talcPct.toFixed(1)+'%',color:talcPct>10?c.accent:c.text},
+      {label:'Сульфиды',value:sulfidePct.toFixed(1)+'%',color:c.primary},
+      {label:'Уверенность',value:(conf*100).toFixed(0)+'%',color:c.primary}
+    ];
+    const oreConclusion=(ore&&ore.conclusion)||'Образец ещё не проанализирован.';
+    const oreBars=this.phases.filter(p=>p.name&&p.name!=='Матрица'&&p.name!=='—').map(p=>({name:p.name,color:p.color,pctW:Math.min(100,p.w*100),pctL:(p.w*100).toFixed(1)}));
+    const combinedStats=[],agreement='—',agreeColor=c.textDim,xrdLegend=[],scaleBtns=[];
+
+    const fsView=st.fsView;
+    const fsTitle=fsView==='sem'?(st.imgMode==='om'?'OM':'SEM')+' · сегментация образца '+st.sample:fsView==='def'?'Карта дефектов · '+st.sample:fsView==='xrd'?'XRD-дифрактограмма · '+st.sample:'';
+    const fsHint=fsView==='sem'?'колесо — зум · тяни — пан · плашку по центру — двигай делитель':fsView==='def'?'контуры дефектов по уровню критичности':fsView==='xrd'?'тяни рамку — зум по X/Y · впиши границы внизу':'';
+
+    return {c,isDark,brandName:'AlloyScope',
+      viewTitle:titles[st.view][0],viewSub:titles[st.view][1],
+      vOverview:st.view==='overview',vReview:st.view==='review',vAnalysis:st.view==='analysis',vUpload:st.view==='upload',vReview:st.view==='review',
+      reviewList,reviewCount,reviewEmpty,
+      anaNeedsReview,anaApproved,anaRejected,anaModelClass,anaClassOpts,
+      onApproveCur:()=>this.approveSample(st.sample,anaModelClass),onRejectCur:()=>this.rejectSample(st.sample),
+      nav,sampleVal:st.sample,
+      sampleOpen:st.sampleOpen,sampleQuery:st.sampleQuery,
+      okpis,statusDist,batchDonut,batchLegend,batchCount:BR.length,recentRows,
+      batchOpen:st.batchOpen,batchQuery:st.batchQuery,
+      batchCur:this.batchList.find(b=>b.id===st.batch)||{id:st.batch,label:st.batch,sub:''},
+      onToggleBatch:()=>this.setState(s=>({batchOpen:!s.batchOpen,batchQuery:''})),
+      onCloseBatch:()=>this.setState({batchOpen:false}),
+      onBatchSearch:e=>this.setState({batchQuery:e.target.value}),
+      onAddBatch:()=>this.addBatch(),
+      batchFiltered:this.batchList.filter(b=>(b.id+' '+b.label).toLowerCase().includes(st.batchQuery.trim().toLowerCase())).map(b=>{const active=b.id===st.batch;return {id:b.id,label:b.label,sub:b.sub,meta:this.getBatch(b.id).rows.length+' обр.',idColor:active?c.primary:c.text,bg:active?c.primaryDim:'transparent',
+        onPick:()=>this.setState({batch:b.id,batchOpen:false,batchQuery:'',sample:this.getBatch(b.id).rows[0].id,roi:null}),
+        onDelete:()=>this.deleteBatch(b.id)};}),
+      batchEmpty:this.batchList.filter(b=>(b.id+' '+b.label).toLowerCase().includes(st.batchQuery.trim().toLowerCase())).length===0,
+      trLine1:line1,trLine2:line2,trDots,trTip,gaugeBg,gaugePath,gaugeVal:(this.confidence*100).toFixed(1),metricTasks,
+      onToggleSample:()=>this.setState(s=>({sampleOpen:!s.sampleOpen,sampleQuery:''})),
+      onCloseSample:()=>this.setState({sampleOpen:false}),
+      onSampleSearch:e=>this.setState({sampleQuery:e.target.value}),
+      sampleFiltered:BR.filter(r=>r.id.toLowerCase().includes(st.sampleQuery.trim().toLowerCase())).map(r=>{const id=r.id;return {id,meta:r.mods.join('·')+' · '+r.status,dot:stCol[r.status],idColor:id===st.sample?c.primary:c.text,
+        style:{display:'flex',alignItems:'center',gap:'10px',padding:'9px 11px',borderRadius:'8px',cursor:'pointer',background:id===st.sample?c.primaryDim:'transparent'},
+        onPick:()=>this.setState({sample:id,sampleOpen:false,sampleQuery:'',roi:null})};}),
+      sampleEmpty:BR.filter(r=>r.id.toLowerCase().includes(st.sampleQuery.trim().toLowerCase())).length===0,
+      batchLabel:st.batch,
+      quickStats,
+      onExportCsv:()=>window.open('/api/samples/'+st.sample+'/export.csv','_blank'),
+      onExportPdf:()=>window.open('/api/samples/'+st.sample+'/report.pdf','_blank'),
+      onExportBatchCsv:()=>window.open('/api/batches/'+st.batch+'/export.csv','_blank'),
+      onUpScale:e=>{this._upScale=parseFloat(e.target.value)||null;},upScaleVal:this._upScale||'',
+      onToggleTheme:()=>this.setState(s=>({theme:s.theme==='dark'?'light':'dark'})),
+      themeIcon:isDark?'M12 3v2M12 19v2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M3 12h2M19 12h2M5.6 18.4 7 17M17 7l1.4-1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8':'M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z',
+      themeLabel:isDark?'Светлая':'Тёмная',
+      phaseRows,combinedStats,agreement,agreeColor,diagTiles,reportBlocks,
+      oreClass,oreClassColor,oreConclusion,oreBars,
+      imgModeBtns,modeBtns,scaleBtns,xrdLegend,numInput,numInputDark,
+      roiStats,roiArea,noRoi:!roiStats,onClearRoi:()=>this.setState({roi:null}),
+      defSummary,defList:dl,defTotal,
+      queue,queueEmpty,uploadFiles,uploadEmpty,modKinds,
+      onFilesPicked:e=>this.onFilesPicked(e),onDropFiles:e=>this.onDropFiles(e),onDragOverUp:e=>e.preventDefault(),
+      onRunUpload:()=>this.runUpload(),
+      batchOptions:this.batchList.map(b=>({id:b.id,label:b.label})),
+      sampleOptionsUp:(st.upBatch==='__new'?[]:this.getBatch(st.upBatch).rows.map(r=>({id:r.id}))),
+      upBatch:st.upBatch,upSample:st.upSample,upBatchNew:st.upBatchNew,upSampleNew:st.upSampleNew,
+      showBatchNew:st.upBatch==='__new',showSampleNew:(st.upSample==='__new'||st.upBatch==='__new'),
+      onUpBatch:e=>this.setState({upBatch:e.target.value,upSample:'__new'}),
+      onUpSample:e=>this.setState({upSample:e.target.value}),
+      onUpBatchNew:e=>this.setState({upBatchNew:e.target.value}),
+      onUpSampleNew:e=>this.setState({upSampleNew:e.target.value}),
+      onRunAnalysis:()=>{
+        let bid=this.state.upBatch;
+        if(bid==='__new'){
+          bid=(this.state.upBatchNew.trim()||('B-'+(43+Math.max(0,this.batchList.length-3))));
+          if(!this.batchList.find(b=>b.id===bid))this.batchList.unshift({id:bid,label:bid,sub:'новая'});
+          if(!this._batchCache[bid])this._batchCache[bid]={rows:[],weights:[0.45,0.28,0.14,0.09,0.04]};
+        }
+        let sid=this.state.upSample;
+        if(sid==='__new'||this.state.upBatch==='__new'){
+          sid=(this.state.upSampleNew.trim()||('NN-'+(4200+((Math.random()*99)|0))));
+          const b=this.getBatch(bid);
+          if(!b.rows.find(r=>r.id===sid))b.rows.unshift({id:sid,mods:['SEM','OM','XRD'],phase:'анализ…',def:0,crit:0,agree:92,conf:0.9,status:'Обработка'});
+        }
+        this.setState({view:'analysis',batch:bid,sample:sid,roi:null,sampleOpen:false});
+      },
+      heatLabel:st.heatOn?'Контуры':'Тепловая карта',onToggleHeat:()=>this.setState(s=>({heatOn:!s.heatOn})),
+      imgBadge:'OM · шлиф · '+Math.round(st.zoom*100)+'%',
+      modeHint:st.analysisMode==='roi'?'выдели участок мышью':'тяни — пан · плашку — двигай делитель',
+      semCursor:st.analysisMode==='roi'?'crosshair':'grab',
+      defChipStyle:{display:'flex',alignItems:'center',gap:'7px',padding:'6px 10px',borderRadius:'8px',cursor:'pointer',background:st.maskLayers.defects?c.primaryDim:c.surface2,border:'1px solid '+(st.maskLayers.defects?c.borderHi:c.border)},
+      onToggleDefMask:()=>this.setState(s=>({maskLayers:{...s.maskLayers,defects:!s.maskLayers.defects}})),
+      onToggleUnc:()=>this.setState(s=>({uncOn:!s.uncOn})),
+      uncBtnStyle:{padding:'7px 13px',borderRadius:'8px',cursor:'pointer',fontFamily:'inherit',fontSize:'12px',fontWeight:600,border:'1px solid '+(st.uncOn?c.accent:c.border),background:st.uncOn?c.accent:c.surface2,color:st.uncOn?'#fff':c.text},
+      onDefDown:e=>this.defDown(e),onDefMove:e=>this.defMove(e),onDefUp:()=>this.defUp(),
+      semRef:this.semCanvas,semWrapRef:this.semWrap,xrdRef:this.xrdCanvas,xrdWrapRef:this.xrdWrap,defRef:this.defCanvas,thumbRef:this.thumbCanvas,fsRef:this.fsCanvas,fsWrapRef:this.fsWrap,
+      xsel:st.xsel,fsXsel:st.fsView==='xrd'?st.xsel:null,
+      sliderVal:st.slider,onSlider:e=>this.setState({slider:+e.target.value}),
+      zoomPct:Math.round(st.zoom*100),
+      onZoomIn:()=>this.setState(s=>({zoom:Math.min(5,s.zoom*1.25)})),
+      onZoomOut:()=>this.setState(s=>({zoom:Math.max(1,s.zoom/1.25)})),
+      onResetView:()=>this.setState({zoom:1,panX:0,panY:0,slider:55,roi:null}),
+      onZoomRoi:()=>{const tf=this._semTf;if(!tf||!st.roi)return;const r=st.roi;const cx=(r.x0+r.x1)/2,cy=(r.y0+r.y1)/2;const rw=Math.abs(r.x1-r.x0),rh=Math.abs(r.y1-r.y0);const nz=Math.max(1,Math.min(5,0.86/Math.max(rw,rh,0.05)));const size=tf.base*nz;this.setState({zoom:nz,panX:size*(0.5-cx),panY:size*(0.5-cy)});},
+      onSemWheel:e=>this.semWheel(e),onSemDown:e=>this.semDown(e),onSemMove:e=>this.semMove(e),onSemUp:()=>this.semUp(),
+      onResetXrd:()=>this.setState({xrdX0:20,xrdX1:90,xrdYLo:0,xrdYHi:1}),
+      onXrdWheel:e=>this.xrdWheel(e),onXrdDown:e=>this.xrdDown(e),onXrdMove:e=>this.xrdMove(e),onXrdUp:e=>this.xrdUp(e),
+      xMinVal:st.xrdX0.toFixed(0),xMaxVal:st.xrdX1.toFixed(0),yMinVal:(st.xrdYLo*100).toFixed(0),yMaxVal:(st.xrdYHi*100).toFixed(0),
+      onXMin:e=>{let v=parseFloat(e.target.value);if(isNaN(v))return;v=Math.max(20,Math.min(this.state.xrdX1-2,v));this.setState({xrdX0:v});},
+      onXMax:e=>{let v=parseFloat(e.target.value);if(isNaN(v))return;v=Math.min(90,Math.max(this.state.xrdX0+2,v));this.setState({xrdX1:v});},
+      onYMin:e=>{let v=parseFloat(e.target.value);if(isNaN(v))return;v=Math.max(0,Math.min(this.state.xrdYHi*100-5,v))/100;this.setState({xrdYLo:v});},
+      onYMax:e=>{let v=parseFloat(e.target.value);if(isNaN(v))return;v=Math.min(110,Math.max(this.state.xrdYLo*100+5,v))/100;this.setState({xrdYHi:v});},
+      xrdTip:st.hoverPeak?{x:st.mx,y:st.my,tt:st.hoverPeak.tt,hkl:st.hoverPeak.hkl,name:this.phases.find(p=>p.key===st.hoverPeak.ph).name,color:this.phases.find(p=>p.key===st.hoverPeak.ph).color,intens:(st.hoverPeak.i*100).toFixed(0)}:null,
+      fsOpen:!!fsView,fsIsSem:fsView==='sem',fsIsXrd:fsView==='xrd',fsIsDef:fsView==='def',fsTitle,fsHint,
+      fsCursor:fsView==='xrd'?'crosshair':fsView==='def'?'default':(st.analysisMode==='roi'?'crosshair':'grab'),
+      onExpandSem:()=>this.setState({fsView:'sem'}),onExpandDef:()=>this.setState({fsView:'def'}),onExpandXrd:()=>this.setState({fsView:'xrd'}),
+      onCloseFs:()=>this.setState({fsView:null}),
+      onFsWheel:e=>{this.state.fsView==='xrd'?this.xrdWheel(e):this.semWheel(e);},
+      onFsDown:e=>{this.state.fsView==='xrd'?this.xrdDown(e):this.semDown(e);},
+      onFsMove:e=>{this.state.fsView==='xrd'?this.xrdMove(e):this.semMove(e);},
+      onFsUp:e=>{this.state.fsView==='xrd'?this.xrdUp(e):this.semUp();}
+    };
+  }
+}
+</script>
+</body>
+</html>
